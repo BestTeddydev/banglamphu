@@ -5,6 +5,8 @@ import Package from '@/models/Package';
 import User from '@/models/User';
 import mongoose from 'mongoose';
 
+export const dynamic = 'force-dynamic';
+
 export const GET = async (request: NextRequest) => {
   try {
     await connectDB();
