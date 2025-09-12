@@ -20,41 +20,44 @@ export default function CreateAttractionPage() {
         lng: 0
       }
     },
-    images: [''],
+    images: [] as string[],
     openingHours: {
-      monday: '08:00-18:00',
-      tuesday: '08:00-18:00',
-      wednesday: '08:00-18:00',
-      thursday: '08:00-18:00',
-      friday: '08:00-18:00',
-      saturday: '08:00-18:00',
-      sunday: '08:00-18:00'
+      open: '08:00',
+      close: '18:00'
     },
-    admissionFee: {
-      adult: 0,
-      child: 0,
-      student: 0
-    },
-    contact: {
-      phone: '',
-      email: '',
-      website: ''
-    },
-    facilities: ['']
+    admissionFee: 0,
+    contactInfo: '',
+    features: [''],
+    tags: ['']
   });
+  const [uploadingImages, setUploadingImages] = useState(false);
+  const [pendingImages, setPendingImages] = useState<File[]>([]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     
     if (name.includes('.')) {
       const [parent, child] = name.split('.');
-      setFormData(prev => ({
-        ...prev,
-        [parent]: {
-          ...prev[parent as keyof typeof prev],
-          [child]: value
-        }
-      }));
+      if (parent === 'location') {
+        setFormData(prev => ({
+          ...prev,
+          location: {
+            ...prev.location,
+            [child]: child === 'coordinates' ? {
+              ...prev.location.coordinates,
+              [name.split('.')[2]]: value
+            } : value
+          }
+        }));
+      } else if (parent === 'openingHours') {
+        setFormData(prev => ({
+          ...prev,
+          openingHours: {
+            ...prev.openingHours,
+            [child]: value
+          }
+        }));
+      }
     } else {
       setFormData(prev => ({
         ...prev,
@@ -63,39 +66,87 @@ export default function CreateAttractionPage() {
     }
   };
 
-  const handleArrayChange = (field: string, index: number, value: string) => {
+  const handleArrayChange = (field: 'features' | 'tags', index: number, value: string) => {
     setFormData(prev => ({
       ...prev,
-      [field]: prev[field as keyof typeof prev].map((item: string, i: number) => 
+      [field]: prev[field].map((item: string, i: number) => 
         i === index ? value : item
       )
     }));
   };
 
-  const addArrayItem = (field: string) => {
+  const addArrayItem = (field: 'features' | 'tags') => {
     setFormData(prev => ({
       ...prev,
-      [field]: [...prev[field as keyof typeof prev], '']
+      [field]: [...prev[field], '']
     }));
   };
 
-  const removeArrayItem = (field: string, index: number) => {
+  const removeArrayItem = (field: 'features' | 'tags', index: number) => {
     setFormData(prev => ({
       ...prev,
-      [field]: prev[field as keyof typeof prev].filter((_: string, i: number) => i !== index)
+      [field]: prev[field].filter((_: string, i: number) => i !== index)
     }));
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    // เพิ่มไฟล์ใหม่เข้าไปในรายการรออัพโหลด
+    setPendingImages(prev => [...prev, ...Array.from(files)]);
+    e.target.value = '';
+  };
+
+  const removeImage = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index)
+    }));
+  };
+
+  const removePendingImage = (index: number) => {
+    setPendingImages(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setUploadingImages(true);
 
     try {
-      // Clean up empty strings from arrays
+      // 1. อัพโหลดรูปภาพก่อน
+      let uploadedImageUrls: string[] = [];
+      if (pendingImages.length > 0) {
+        const uploadPromises = pendingImages.map(async (file) => {
+          const formData = new FormData();
+          formData.append('file', file);
+
+          const response = await fetch('/api/upload/image', {
+            method: 'POST',
+            body: formData,
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to upload image');
+          }
+
+          const result = await response.json();
+          return result.url;
+        });
+
+        uploadedImageUrls = await Promise.all(uploadPromises);
+      }
+
+      // 2. รวมรูปภาพเก่าและใหม่
+      const allImages = [...formData.images, ...uploadedImageUrls];
+
+      // 3. ส่งข้อมูลไปสร้างแหล่งท่องเที่ยว
       const cleanedData = {
         ...formData,
-        images: formData.images.filter(img => img.trim() !== ''),
-        facilities: formData.facilities.filter(facility => facility.trim() !== '')
+        images: allImages.filter(img => img.trim() !== ''),
+        features: formData.features.filter(feature => feature.trim() !== ''),
+        tags: formData.tags.filter(tag => tag.trim() !== '')
       };
 
       const response = await fetch('/api/admin/attractions', {
@@ -108,6 +159,8 @@ export default function CreateAttractionPage() {
       });
 
       if (response.ok) {
+        // 4. รีเซ็ตสถานะ
+        setPendingImages([]);
         router.push('/admin/attractions');
       } else {
         alert('เกิดข้อผิดพลาดในการสร้างแหล่งท่องเที่ยว');
@@ -117,6 +170,7 @@ export default function CreateAttractionPage() {
       alert('เกิดข้อผิดพลาดในการสร้างแหล่งท่องเที่ยว');
     } finally {
       setLoading(false);
+      setUploadingImages(false);
     }
   };
 
@@ -136,21 +190,29 @@ export default function CreateAttractionPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">เพิ่มแหล่งท่องเที่ยวใหม่</h1>
-          <p className="text-gray-600 mt-1">กรอกข้อมูลแหล่งท่องเที่ยวในชุมชนบางลำพู</p>
+          <nav className="flex items-center space-x-2 text-sm text-gray-600 mb-4">
+            <Link href="/admin" className="hover:text-green-600">แอดมิน</Link>
+            <span>›</span>
+            <Link href="/admin/attractions" className="hover:text-green-600">แหล่งท่องเที่ยว</Link>
+            <span>›</span>
+            <span className="text-gray-900">เพิ่มใหม่</span>
+          </nav>
+          <h1 className="text-3xl font-bold text-gray-900 mb-4">เพิ่มแหล่งท่องเที่ยวใหม่</h1>
+          <p className="text-gray-600">กรอกข้อมูลแหล่งท่องเที่ยวในชุมชนบางลำพู</p>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-8">
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">ข้อมูลพื้นฐาน</h2>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200">
+            <div className="p-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-6">ข้อมูลพื้นฐาน</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-gray-800 mb-3">
                   ชื่อแหล่งท่องเที่ยว *
                 </label>
                 <input
@@ -159,12 +221,12 @@ export default function CreateAttractionPage() {
                   value={formData.name}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-green-500 focus:border-green-500 transition-colors duration-200 text-gray-900 font-medium placeholder-gray-500 shadow-sm hover:shadow-md focus:shadow-md"
                 />
               </div>
 
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-gray-800 mb-3">
                   คำอธิบาย *
                 </label>
                 <textarea
@@ -173,12 +235,12 @@ export default function CreateAttractionPage() {
                   onChange={handleInputChange}
                   required
                   rows={4}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-green-500 focus:border-green-500 transition-colors duration-200 text-gray-900 font-medium placeholder-gray-500 resize-vertical shadow-sm hover:shadow-md focus:shadow-md"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-gray-800 mb-3">
                   หมวดหมู่ *
                 </label>
                 <select
@@ -186,20 +248,21 @@ export default function CreateAttractionPage() {
                   value={formData.category}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-green-500 focus:border-green-500 transition-colors duration-200 text-gray-900 font-medium bg-white shadow-sm hover:shadow-md focus:shadow-md"
                 >
                   <option value="">เลือกหมวดหมู่</option>
-                  <option value="วัด">วัด</option>
-                  <option value="ตลาด">ตลาด</option>
-                  <option value="พิพิธภัณฑ์">พิพิธภัณฑ์</option>
-                  <option value="สวนสาธารณะ">สวนสาธารณะ</option>
-                  <option value="สถานที่ประวัติศาสตร์">สถานที่ประวัติศาสตร์</option>
-                  <option value="อื่นๆ">อื่นๆ</option>
+                  <option value="temple">วัด</option>
+                  <option value="market">ตลาด</option>
+                  <option value="museum">พิพิธภัณฑ์</option>
+                  <option value="park">สวนสาธารณะ</option>
+                  <option value="historical">สถานที่ประวัติศาสตร์</option>
+                  <option value="cultural">สถานที่วัฒนธรรม</option>
+                  <option value="other">อื่นๆ</option>
                 </select>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-gray-800 mb-3">
                   ที่อยู่ *
                 </label>
                 <input
@@ -208,12 +271,12 @@ export default function CreateAttractionPage() {
                   value={formData.location.address}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-green-500 focus:border-green-500 transition-colors duration-200 text-gray-900 font-medium placeholder-gray-500 shadow-sm hover:shadow-md focus:shadow-md"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-gray-800 mb-3">
                   ละติจูด
                 </label>
                 <input
@@ -222,12 +285,12 @@ export default function CreateAttractionPage() {
                   name="location.coordinates.lat"
                   value={formData.location.coordinates.lat}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-green-500 focus:border-green-500 transition-colors duration-200 text-gray-900 font-medium placeholder-gray-500 shadow-sm hover:shadow-md focus:shadow-md"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-gray-800 mb-3">
                   ลองจิจูด
                 </label>
                 <input
@@ -236,110 +299,168 @@ export default function CreateAttractionPage() {
                   name="location.coordinates.lng"
                   value={formData.location.coordinates.lng}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-green-500 focus:border-green-500 transition-colors duration-200 text-gray-900 font-medium placeholder-gray-500 shadow-sm hover:shadow-md focus:shadow-md"
                 />
               </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-800 mb-3">
+                  เวลาเปิด
+                </label>
+                <input
+                  type="time"
+                  name="openingHours.open"
+                  value={formData.openingHours.open}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-green-500 focus:border-green-500 transition-colors duration-200 text-gray-900 font-medium shadow-sm hover:shadow-md focus:shadow-md"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-800 mb-3">
+                  เวลาปิด
+                </label>
+                <input
+                  type="time"
+                  name="openingHours.close"
+                  value={formData.openingHours.close}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-green-500 focus:border-green-500 transition-colors duration-200 text-gray-900 font-medium shadow-sm hover:shadow-md focus:shadow-md"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-800 mb-3">
+                  ค่าเข้าชม (บาท)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  name="admissionFee"
+                  value={formData.admissionFee}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-green-500 focus:border-green-500 transition-colors duration-200 text-gray-900 font-medium placeholder-gray-500 shadow-sm hover:shadow-md focus:shadow-md"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-800 mb-3">
+                  ข้อมูลติดต่อ
+                </label>
+                <input
+                  type="text"
+                  name="contactInfo"
+                  value={formData.contactInfo}
+                  onChange={handleInputChange}
+                  placeholder="เบอร์โทรศัพท์ หรือ อีเมล"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-green-500 focus:border-green-500 transition-colors duration-200 text-gray-900 font-medium placeholder-gray-500 shadow-sm hover:shadow-md focus:shadow-md"
+                />
+              </div>
+            </div>
             </div>
           </div>
 
           {/* Images */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">รูปภาพ</h2>
+          <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200">
+            <div className="p-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-6">รูปภาพ</h2>
             
-            {formData.images.map((image, index) => (
-              <div key={index} className="flex items-center space-x-2 mb-2">
-                <input
-                  type="url"
-                  value={image}
-                  onChange={(e) => handleArrayChange('images', index, e.target.value)}
-                  placeholder="URL รูปภาพ"
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                />
-                {formData.images.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => removeArrayItem('images', index)}
-                    className="px-3 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
-                  >
-                    ลบ
-                  </button>
-                )}
-              </div>
-            ))}
-            
-            <button
-              type="button"
-              onClick={() => addArrayItem('images')}
-              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-            >
-              เพิ่มรูปภาพ
-            </button>
-          </div>
+            {/* Upload Input */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                อัพโหลดรูปภาพ
+              </label>
+              <input
+                type="file"
+                multiple
+                accept="image/*"
+                onChange={handleImageUpload}
+                disabled={uploadingImages}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors duration-200"
+              />
+              <p className="text-sm text-gray-500 mt-1">
+                รองรับไฟล์ JPEG, PNG, WebP ขนาดไม่เกิน 5MB
+              </p>
+              {uploadingImages && (
+                <p className="text-sm text-blue-600 mt-1">กำลังอัพโหลดและบันทึกข้อมูล...</p>
+              )}
+            </div>
 
-          {/* Contact Info */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">ข้อมูลติดต่อ</h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  เบอร์โทรศัพท์
-                </label>
-                <input
-                  type="tel"
-                  name="contact.phone"
-                  value={formData.contact.phone}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                />
+            {/* Pending Images Preview */}
+            {pendingImages.length > 0 && (
+              <div className="mb-4">
+                <h3 className="text-lg font-semibold text-gray-900 mb-3">รูปภาพที่รออัพโหลด</h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {pendingImages.map((file, index) => (
+                    <div key={index} className="relative group">
+                      <img
+                        src={URL.createObjectURL(file)}
+                        alt={`รูปภาพใหม่ ${index + 1}`}
+                        className="w-full h-32 object-cover rounded-lg border border-gray-200"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removePendingImage(index)}
+                        className="absolute top-2 right-2 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-700 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        ×
+                      </button>
+                      <div className="absolute bottom-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded">
+                        รออัพโหลด
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
+            )}
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  อีเมล
-                </label>
-                <input
-                  type="email"
-                  name="contact.email"
-                  value={formData.contact.email}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                />
+            {/* Image Preview */}
+            {formData.images.length > 0 && (
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-900">รูปภาพที่อัพโหลดแล้ว</h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {formData.images.map((image, index) => (
+                    <div key={index} className="relative group">
+                      <img
+                        src={image}
+                        alt={`รูปภาพ ${index + 1}`}
+                        className="w-full h-32 object-cover rounded-lg border border-gray-200"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeImage(index)}
+                        className="absolute top-2 right-2 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-700 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
               </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  เว็บไซต์
-                </label>
-                <input
-                  type="url"
-                  name="contact.website"
-                  value={formData.contact.website}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
+            )}
             </div>
           </div>
 
-          {/* Facilities */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">สิ่งอำนวยความสะดวก</h2>
+
+          {/* Features */}
+          <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200">
+            <div className="p-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-6">คุณสมบัติเด่น</h2>
             
-            {formData.facilities.map((facility, index) => (
+            {formData.features.map((feature, index) => (
               <div key={index} className="flex items-center space-x-2 mb-2">
                 <input
                   type="text"
-                  value={facility}
-                  onChange={(e) => handleArrayChange('facilities', index, e.target.value)}
-                  placeholder="สิ่งอำนวยความสะดวก"
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  value={feature}
+                  onChange={(e) => handleArrayChange('features', index, e.target.value)}
+                  placeholder="คุณสมบัติเด่น"
+                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-green-500 focus:border-green-500 transition-colors duration-200 text-gray-900 font-medium placeholder-gray-500 shadow-sm hover:shadow-md focus:shadow-md"
                 />
-                {formData.facilities.length > 1 && (
+                {formData.features.length > 1 && (
                   <button
                     type="button"
-                    onClick={() => removeArrayItem('facilities', index)}
-                    className="px-3 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+                    onClick={() => removeArrayItem('features', index)}
+                    className="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium transition-colors duration-200"
                   >
                     ลบ
                   </button>
@@ -349,25 +470,62 @@ export default function CreateAttractionPage() {
             
             <button
               type="button"
-              onClick={() => addArrayItem('facilities')}
-              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+              onClick={() => addArrayItem('features')}
+              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition-colors duration-200"
             >
-              เพิ่มสิ่งอำนวยความสะดวก
+              เพิ่มคุณสมบัติเด่น
             </button>
+            </div>
+          </div>
+
+          {/* Tags */}
+          <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200">
+            <div className="p-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-6">แท็ก</h2>
+            
+            {formData.tags.map((tag, index) => (
+              <div key={index} className="flex items-center space-x-2 mb-2">
+                <input
+                  type="text"
+                  value={tag}
+                  onChange={(e) => handleArrayChange('tags', index, e.target.value)}
+                  placeholder="แท็ก"
+                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-green-500 focus:border-green-500 transition-colors duration-200 text-gray-900 font-medium placeholder-gray-500 shadow-sm hover:shadow-md focus:shadow-md"
+                />
+                {formData.tags.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => removeArrayItem('tags', index)}
+                    className="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium transition-colors duration-200"
+                  >
+                    ลบ
+                  </button>
+                )}
+              </div>
+            ))}
+            
+            <button
+              type="button"
+              onClick={() => addArrayItem('tags')}
+              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition-colors duration-200"
+            >
+              เพิ่มแท็ก
+            </button>
+            </div>
           </div>
 
           {/* Submit Buttons */}
           <div className="flex justify-end space-x-4">
             <Link
               href="/admin/attractions"
-              className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+              className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-colors duration-200"
             >
               ยกเลิก
             </Link>
             <button
               type="submit"
               disabled={loading}
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed"
+              className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-green-400 disabled:cursor-not-allowed font-medium"
             >
               {loading ? 'กำลังบันทึก...' : 'บันทึก'}
             </button>

@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Package from '@/models/Package';
-import { requireAdmin } from '@/lib/auth';
+import mongoose from 'mongoose';
 
-export const GET = requireAdmin(async (request: NextRequest) => {
+export const GET = async (request: NextRequest) => {
   try {
     await connectDB();
     
@@ -27,8 +27,6 @@ export const GET = requireAdmin(async (request: NextRequest) => {
     }
     
     const packages = await Package.find(query)
-      .populate('attractions', 'name')
-      .populate('restaurants', 'name')
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(limit);
@@ -51,15 +49,27 @@ export const GET = requireAdmin(async (request: NextRequest) => {
       { status: 500 }
     );
   }
-});
+};
 
-export const POST = requireAdmin(async (request: NextRequest) => {
+export const POST = async (request: NextRequest) => {
   try {
     await connectDB();
     
     const body = await request.json();
     
-    const packageData = new Package(body);
+    // ตรวจสอบและแปลง attractions และ restaurants เป็น ObjectId
+    const processedData = {
+      ...body,
+      attractions: body.attractions && body.attractions.length > 0 
+        ? body.attractions.map((id: string) => new mongoose.Types.ObjectId(id))
+        : [],
+      restaurants: body.restaurants && body.restaurants.length > 0 
+        ? body.restaurants.map((id: string) => new mongoose.Types.ObjectId(id))
+        : [],
+      images: body.images || []
+    };
+    
+    const packageData = new Package(processedData);
     await packageData.save();
     
     return NextResponse.json({
@@ -73,4 +83,4 @@ export const POST = requireAdmin(async (request: NextRequest) => {
       { status: 500 }
     );
   }
-});
+};

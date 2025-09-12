@@ -8,12 +8,12 @@ import { useAuth } from '@/contexts/AuthContext';
 export default function CreateRestaurantPage() {
   const { isAdmin } = useAuth();
   const router = useRouter();
+  
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    cuisine: [''],
-    priceRange: '',
+    category: '',
     location: {
       address: '',
       coordinates: {
@@ -21,37 +21,44 @@ export default function CreateRestaurantPage() {
         lng: 0
       }
     },
-    images: [''],
+    images: [] as string[],
     openingHours: {
-      monday: '08:00-22:00',
-      tuesday: '08:00-22:00',
-      wednesday: '08:00-22:00',
-      thursday: '08:00-22:00',
-      friday: '08:00-22:00',
-      saturday: '08:00-22:00',
-      sunday: '08:00-22:00'
+      open: '08:00',
+      close: '22:00'
     },
-    contact: {
-      phone: '',
-      email: '',
-      website: ''
-    },
-    facilities: [''],
-    averagePrice: 0
+    contactInfo: '',
+    priceRange: '$',
+    features: [''],
+    tags: ['']
   });
+  const [uploadingImages, setUploadingImages] = useState(false);
+  const [pendingImages, setPendingImages] = useState<File[]>([]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     
     if (name.includes('.')) {
       const [parent, child] = name.split('.');
-      setFormData(prev => ({
-        ...prev,
-        [parent]: {
-          ...prev[parent as keyof typeof prev],
-          [child]: value
-        }
-      }));
+      if (parent === 'location') {
+        setFormData(prev => ({
+          ...prev,
+          location: {
+            ...prev.location,
+            [child]: child === 'coordinates' ? {
+              ...prev.location.coordinates,
+              [name.split('.')[2]]: value
+            } : value
+          }
+        }));
+      } else if (parent === 'openingHours') {
+        setFormData(prev => ({
+          ...prev,
+          openingHours: {
+            ...prev.openingHours,
+            [child]: value
+          }
+        }));
+      }
     } else {
       setFormData(prev => ({
         ...prev,
@@ -60,40 +67,87 @@ export default function CreateRestaurantPage() {
     }
   };
 
-  const handleArrayChange = (field: string, index: number, value: string) => {
+  const handleArrayChange = (field: 'features' | 'tags', index: number, value: string) => {
     setFormData(prev => ({
       ...prev,
-      [field]: prev[field as keyof typeof prev].map((item: string, i: number) => 
+      [field]: prev[field].map((item: string, i: number) => 
         i === index ? value : item
       )
     }));
   };
 
-  const addArrayItem = (field: string) => {
+  const addArrayItem = (field: 'features' | 'tags') => {
     setFormData(prev => ({
       ...prev,
-      [field]: [...prev[field as keyof typeof prev], '']
+      [field]: [...prev[field], '']
     }));
   };
 
-  const removeArrayItem = (field: string, index: number) => {
+  const removeArrayItem = (field: 'features' | 'tags', index: number) => {
     setFormData(prev => ({
       ...prev,
-      [field]: prev[field as keyof typeof prev].filter((_: string, i: number) => i !== index)
+      [field]: prev[field].filter((_: string, i: number) => i !== index)
     }));
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    // เพิ่มไฟล์ใหม่เข้าไปในรายการรออัพโหลด
+    setPendingImages(prev => [...prev, ...Array.from(files)]);
+    e.target.value = '';
+  };
+
+  const removeImage = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index)
+    }));
+  };
+
+  const removePendingImage = (index: number) => {
+    setPendingImages(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setUploadingImages(true);
 
     try {
-      // Clean up empty strings from arrays
+      // 1. อัพโหลดรูปภาพก่อน
+      let uploadedImageUrls: string[] = [];
+      if (pendingImages.length > 0) {
+        const uploadPromises = pendingImages.map(async (file) => {
+          const formData = new FormData();
+          formData.append('file', file);
+
+          const response = await fetch('/api/upload/image', {
+            method: 'POST',
+            body: formData,
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to upload image');
+          }
+
+          const result = await response.json();
+          return result.url;
+        });
+
+        uploadedImageUrls = await Promise.all(uploadPromises);
+      }
+
+      // 2. รวมรูปภาพเก่าและใหม่
+      const allImages = [...formData.images, ...uploadedImageUrls];
+
+      // 3. ส่งข้อมูลไปสร้างร้านอาหาร
       const cleanedData = {
         ...formData,
-        images: formData.images.filter(img => img.trim() !== ''),
-        cuisine: formData.cuisine.filter(cuisine => cuisine.trim() !== ''),
-        facilities: formData.facilities.filter(facility => facility.trim() !== '')
+        images: allImages.filter(img => img.trim() !== ''),
+        features: formData.features.filter(feature => feature.trim() !== ''),
+        tags: formData.tags.filter(tag => tag.trim() !== '')
       };
 
       const response = await fetch('/api/admin/restaurants', {
@@ -106,6 +160,8 @@ export default function CreateRestaurantPage() {
       });
 
       if (response.ok) {
+        // 4. รีเซ็ตสถานะ
+        setPendingImages([]);
         router.push('/admin/restaurants');
       } else {
         alert('เกิดข้อผิดพลาดในการสร้างร้านอาหาร');
@@ -115,6 +171,7 @@ export default function CreateRestaurantPage() {
       alert('เกิดข้อผิดพลาดในการสร้างร้านอาหาร');
     } finally {
       setLoading(false);
+      setUploadingImages(false);
     }
   };
 
@@ -137,18 +194,26 @@ export default function CreateRestaurantPage() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">เพิ่มร้านอาหารใหม่</h1>
-          <p className="text-gray-600 mt-1">กรอกข้อมูลร้านอาหารในชุมชนบางลำพู</p>
+          <nav className="flex items-center space-x-2 text-sm text-gray-600 mb-4">
+            <Link href="/admin" className="hover:text-green-600">แอดมิน</Link>
+            <span>›</span>
+            <Link href="/admin/restaurants" className="hover:text-green-600">ร้านอาหาร</Link>
+            <span>›</span>
+            <span className="text-gray-900">สร้างใหม่</span>
+          </nav>
+          <h1 className="text-3xl font-bold text-gray-900 mb-4">เพิ่มร้านอาหารใหม่</h1>
+          <p className="text-gray-600">เพิ่มข้อมูลร้านอาหารในชุมชนบางลำพู</p>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-8">
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">ข้อมูลพื้นฐาน</h2>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200">
+            <div className="p-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-6">ข้อมูลพื้นฐาน</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-gray-800 mb-3">
                   ชื่อร้านอาหาร *
                 </label>
                 <input
@@ -157,12 +222,12 @@ export default function CreateRestaurantPage() {
                   value={formData.name}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-green-500 focus:border-green-500 transition-colors duration-200 text-gray-900 font-medium placeholder-gray-500 shadow-sm hover:shadow-md focus:shadow-md"
                 />
               </div>
 
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-gray-800 mb-3">
                   คำอธิบาย *
                 </label>
                 <textarea
@@ -171,12 +236,35 @@ export default function CreateRestaurantPage() {
                   onChange={handleInputChange}
                   required
                   rows={4}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-green-500 focus:border-green-500 transition-colors duration-200 text-gray-900 font-medium placeholder-gray-500 resize-vertical shadow-sm hover:shadow-md focus:shadow-md"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-gray-800 mb-3">
+                  หมวดหมู่ *
+                </label>
+                <select
+                  name="category"
+                  value={formData.category}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-green-500 focus:border-green-500 transition-colors duration-200 text-gray-900 font-medium bg-white shadow-sm hover:shadow-md focus:shadow-md"
+                >
+                  <option value="">เลือกหมวดหมู่</option>
+                  <option value="thai">อาหารไทย</option>
+                  <option value="international">อาหารนานาชาติ</option>
+                  <option value="cafe">คาเฟ่</option>
+                  <option value="street_food">อาหารข้างทาง</option>
+                  <option value="fine_dining">อาหารหรู</option>
+                  <option value="fast_food">ฟาสต์ฟู้ด</option>
+                  <option value="seafood">อาหารทะเล</option>
+                  <option value="other">อื่นๆ</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-800 mb-3">
                   ระดับราคา *
                 </label>
                 <select
@@ -184,31 +272,17 @@ export default function CreateRestaurantPage() {
                   value={formData.priceRange}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-green-500 focus:border-green-500 transition-colors duration-200 text-gray-900 font-medium bg-white shadow-sm hover:shadow-md focus:shadow-md"
                 >
-                  <option value="">เลือกระดับราคา</option>
-                  <option value="budget">ประหยัด (ต่ำกว่า 100 บาท)</option>
-                  <option value="moderate">ปานกลาง (100-300 บาท)</option>
-                  <option value="expensive">แพง (มากกว่า 300 บาท)</option>
+                  <option value="$">$ (ถูก)</option>
+                  <option value="$$">$$ (ปานกลาง)</option>
+                  <option value="$$$">$$$ (แพง)</option>
+                  <option value="$$$$">$$$$ (แพงมาก)</option>
                 </select>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  ราคาเฉลี่ย (บาท)
-                </label>
-                <input
-                  type="number"
-                  name="averagePrice"
-                  value={formData.averagePrice}
-                  onChange={handleInputChange}
-                  min="0"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-gray-800 mb-3">
                   ที่อยู่ *
                 </label>
                 <input
@@ -217,12 +291,26 @@ export default function CreateRestaurantPage() {
                   value={formData.location.address}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-green-500 focus:border-green-500 transition-colors duration-200 text-gray-900 font-medium placeholder-gray-500 shadow-sm hover:shadow-md focus:shadow-md"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-gray-800 mb-3">
+                  ข้อมูลติดต่อ
+                </label>
+                <input
+                  type="text"
+                  name="contactInfo"
+                  value={formData.contactInfo}
+                  onChange={handleInputChange}
+                  placeholder="เบอร์โทรศัพท์ หรือ อีเมล"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-green-500 focus:border-green-500 transition-colors duration-200 text-gray-900 font-medium placeholder-gray-500 shadow-sm hover:shadow-md focus:shadow-md"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-800 mb-3">
                   ละติจูด
                 </label>
                 <input
@@ -231,12 +319,12 @@ export default function CreateRestaurantPage() {
                   name="location.coordinates.lat"
                   value={formData.location.coordinates.lat}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-green-500 focus:border-green-500 transition-colors duration-200 text-gray-900 font-medium placeholder-gray-500 shadow-sm hover:shadow-md focus:shadow-md"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-gray-800 mb-3">
                   ลองจิจูด
                 </label>
                 <input
@@ -245,144 +333,139 @@ export default function CreateRestaurantPage() {
                   name="location.coordinates.lng"
                   value={formData.location.coordinates.lng}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-green-500 focus:border-green-500 transition-colors duration-200 text-gray-900 font-medium placeholder-gray-500 shadow-sm hover:shadow-md focus:shadow-md"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-800 mb-3">
+                  เวลาเปิด
+                </label>
+                <input
+                  type="time"
+                  name="openingHours.open"
+                  value={formData.openingHours.open}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-green-500 focus:border-green-500 transition-colors duration-200 text-gray-900 font-medium shadow-sm hover:shadow-md focus:shadow-md"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-800 mb-3">
+                  เวลาปิด
+                </label>
+                <input
+                  type="time"
+                  name="openingHours.close"
+                  value={formData.openingHours.close}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-green-500 focus:border-green-500 transition-colors duration-200 text-gray-900 font-medium shadow-sm hover:shadow-md focus:shadow-md"
                 />
               </div>
             </div>
-          </div>
-
-          {/* Cuisine Types */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">ประเภทอาหาร</h2>
-            
-            {formData.cuisine.map((cuisine, index) => (
-              <div key={index} className="flex items-center space-x-2 mb-2">
-                <input
-                  type="text"
-                  value={cuisine}
-                  onChange={(e) => handleArrayChange('cuisine', index, e.target.value)}
-                  placeholder="ประเภทอาหาร (เช่น อาหารไทย, อาหารจีน)"
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                />
-                {formData.cuisine.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => removeArrayItem('cuisine', index)}
-                    className="px-3 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
-                  >
-                    ลบ
-                  </button>
-                )}
-              </div>
-            ))}
-            
-            <button
-              type="button"
-              onClick={() => addArrayItem('cuisine')}
-              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-            >
-              เพิ่มประเภทอาหาร
-            </button>
+            </div>
           </div>
 
           {/* Images */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">รูปภาพ</h2>
+          <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200">
+            <div className="p-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-6">รูปภาพ</h2>
             
-            {formData.images.map((image, index) => (
-              <div key={index} className="flex items-center space-x-2 mb-2">
-                <input
-                  type="url"
-                  value={image}
-                  onChange={(e) => handleArrayChange('images', index, e.target.value)}
-                  placeholder="URL รูปภาพ"
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                />
-                {formData.images.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => removeArrayItem('images', index)}
-                    className="px-3 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
-                  >
-                    ลบ
-                  </button>
-                )}
-              </div>
-            ))}
-            
-            <button
-              type="button"
-              onClick={() => addArrayItem('images')}
-              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-            >
-              เพิ่มรูปภาพ
-            </button>
-          </div>
+            {/* Upload Input */}
+            <div className="mb-4">
+              <label className="block text-sm font-semibold text-gray-800 mb-3">
+                อัพโหลดรูปภาพ
+              </label>
+              <input
+                type="file"
+                multiple
+                accept="image/*"
+                onChange={handleImageUpload}
+                disabled={uploadingImages}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors duration-200"
+              />
+              <p className="text-sm text-gray-500 mt-1">
+                รองรับไฟล์ JPEG, PNG, WebP ขนาดไม่เกิน 5MB
+              </p>
+              {uploadingImages && (
+                <p className="text-sm text-blue-600 mt-1">กำลังอัพโหลดและบันทึกข้อมูล...</p>
+              )}
+            </div>
 
-          {/* Contact Info */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">ข้อมูลติดต่อ</h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  เบอร์โทรศัพท์
-                </label>
-                <input
-                  type="tel"
-                  name="contact.phone"
-                  value={formData.contact.phone}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                />
+            {/* Pending Images Preview */}
+            {pendingImages.length > 0 && (
+              <div className="mb-4">
+                <h3 className="text-lg font-semibold text-gray-900 mb-3">รูปภาพที่รออัพโหลด</h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {pendingImages.map((file, index) => (
+                    <div key={index} className="relative group">
+                      <img
+                        src={URL.createObjectURL(file)}
+                        alt={`รูปภาพใหม่ ${index + 1}`}
+                        className="w-full h-32 object-cover rounded-lg border border-gray-200"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removePendingImage(index)}
+                        className="absolute top-2 right-2 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-700 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        ×
+                      </button>
+                      <div className="absolute bottom-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded">
+                        รออัพโหลด
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
+            )}
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  อีเมล
-                </label>
-                <input
-                  type="email"
-                  name="contact.email"
-                  value={formData.contact.email}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                />
+            {/* Image Preview */}
+            {formData.images.length > 0 && (
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-900">รูปภาพที่อัพโหลดแล้ว</h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {formData.images.map((image, index) => (
+                    <div key={index} className="relative group">
+                      <img
+                        src={image}
+                        alt={`รูปภาพ ${index + 1}`}
+                        className="w-full h-32 object-cover rounded-lg border border-gray-200"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeImage(index)}
+                        className="absolute top-2 right-2 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-700 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
               </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  เว็บไซต์
-                </label>
-                <input
-                  type="url"
-                  name="contact.website"
-                  value={formData.contact.website}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
+            )}
             </div>
           </div>
 
-          {/* Facilities */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">สิ่งอำนวยความสะดวก</h2>
+          {/* Features */}
+          <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200">
+            <div className="p-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-6">คุณสมบัติเด่น</h2>
             
-            {formData.facilities.map((facility, index) => (
+            {formData.features.map((feature, index) => (
               <div key={index} className="flex items-center space-x-2 mb-2">
                 <input
                   type="text"
-                  value={facility}
-                  onChange={(e) => handleArrayChange('facilities', index, e.target.value)}
-                  placeholder="สิ่งอำนวยความสะดวก (เช่น ที่จอดรถ, WiFi, เครื่องปรับอากาศ)"
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  value={feature}
+                  onChange={(e) => handleArrayChange('features', index, e.target.value)}
+                  placeholder="คุณสมบัติเด่น"
+                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-green-500 focus:border-green-500 transition-colors duration-200 text-gray-900 font-medium placeholder-gray-500 shadow-sm hover:shadow-md focus:shadow-md"
                 />
-                {formData.facilities.length > 1 && (
+                {formData.features.length > 1 && (
                   <button
                     type="button"
-                    onClick={() => removeArrayItem('facilities', index)}
-                    className="px-3 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+                    onClick={() => removeArrayItem('features', index)}
+                    className="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium transition-colors duration-200"
                   >
                     ลบ
                   </button>
@@ -392,27 +475,64 @@ export default function CreateRestaurantPage() {
             
             <button
               type="button"
-              onClick={() => addArrayItem('facilities')}
-              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+              onClick={() => addArrayItem('features')}
+              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition-colors duration-200"
             >
-              เพิ่มสิ่งอำนวยความสะดวก
+              เพิ่มคุณสมบัติเด่น
             </button>
+            </div>
+          </div>
+
+          {/* Tags */}
+          <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200">
+            <div className="p-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-6">แท็ก</h2>
+            
+            {formData.tags.map((tag, index) => (
+              <div key={index} className="flex items-center space-x-2 mb-2">
+                <input
+                  type="text"
+                  value={tag}
+                  onChange={(e) => handleArrayChange('tags', index, e.target.value)}
+                  placeholder="แท็ก"
+                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-green-500 focus:border-green-500 transition-colors duration-200 text-gray-900 font-medium placeholder-gray-500 shadow-sm hover:shadow-md focus:shadow-md"
+                />
+                {formData.tags.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => removeArrayItem('tags', index)}
+                    className="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium transition-colors duration-200"
+                  >
+                    ลบ
+                  </button>
+                )}
+              </div>
+            ))}
+            
+            <button
+              type="button"
+              onClick={() => addArrayItem('tags')}
+              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition-colors duration-200"
+            >
+              เพิ่มแท็ก
+            </button>
+            </div>
           </div>
 
           {/* Submit Buttons */}
           <div className="flex justify-end space-x-4">
             <Link
               href="/admin/restaurants"
-              className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+              className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-colors duration-200"
             >
               ยกเลิก
             </Link>
             <button
               type="submit"
               disabled={loading}
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed"
+              className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-green-400 disabled:cursor-not-allowed font-medium"
             >
-              {loading ? 'กำลังบันทึก...' : 'บันทึก'}
+              {loading ? 'กำลังสร้าง...' : 'สร้างร้านอาหาร'}
             </button>
           </div>
         </form>

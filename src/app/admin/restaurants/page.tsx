@@ -8,83 +8,118 @@ interface Restaurant {
   _id: string;
   name: string;
   description: string;
-  cuisine: string[];
-  priceRange: string;
+  category: string;
   location: {
     address: string;
+    coordinates: {
+      lat: number;
+      lng: number;
+    };
   };
   images: string[];
-  isActive: boolean;
+  openingHours: {
+    open: string;
+    close: string;
+  };
+  contactInfo: string;
+  priceRange: string;
+  features: string[];
+  tags: string[];
   rating: number;
-  reviewCount: number;
-  averagePrice: number;
+  isActive: boolean;
   createdAt: string;
 }
 
-export default function RestaurantsPage() {
-  const { user, isAdmin } = useAuth();
+export default function AdminRestaurantsPage() {
+  const { isAdmin } = useAuth();
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCuisine, setSelectedCuisine] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('');
 
   useEffect(() => {
-    if (isAdmin) {
-      fetchRestaurants();
-    }
-  }, [isAdmin]);
+    fetchRestaurants();
+  }, []);
 
   const fetchRestaurants = async () => {
     try {
-      const params = new URLSearchParams();
-      if (searchTerm) params.append('search', searchTerm);
-      if (selectedCuisine) params.append('cuisine', selectedCuisine);
-      
-      const response = await fetch(`/api/admin/restaurants?${params}`, {
-        credentials: 'include'
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        setRestaurants(data.restaurants);
+      setLoading(true);
+      const response = await fetch('/api/admin/restaurants');
+      if (!response.ok) {
+        throw new Error('Failed to fetch restaurants');
       }
-    } catch (error) {
-      console.error('Error fetching restaurants:', error);
+      const data = await response.json();
+      setRestaurants(data.restaurants);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSearch = () => {
-    setLoading(true);
-    fetchRestaurants();
-  };
-
   const handleDelete = async (id: string) => {
     if (!confirm('คุณแน่ใจหรือไม่ที่จะลบร้านอาหารนี้?')) return;
-    
+
     try {
       const response = await fetch(`/api/admin/restaurants/${id}`, {
         method: 'DELETE',
-        credentials: 'include'
+        credentials: 'include',
       });
-      
+
       if (response.ok) {
-        setRestaurants(restaurants.filter(restaurant => restaurant._id !== id));
+        fetchRestaurants();
+      } else {
+        alert('เกิดข้อผิดพลาดในการลบร้านอาหาร');
       }
     } catch (error) {
       console.error('Error deleting restaurant:', error);
+      alert('เกิดข้อผิดพลาดในการลบร้านอาหาร');
     }
   };
 
-  const getPriceRangeText = (priceRange: string) => {
-    switch (priceRange) {
-      case 'budget': return 'ประหยัด';
-      case 'moderate': return 'ปานกลาง';
-      case 'expensive': return 'แพง';
-      default: return priceRange;
+  const toggleActive = async (id: string, currentStatus: boolean) => {
+    try {
+      const response = await fetch(`/api/admin/restaurants/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ isActive: !currentStatus }),
+      });
+
+      if (response.ok) {
+        fetchRestaurants();
+      } else {
+        alert('เกิดข้อผิดพลาดในการอัพเดทสถานะ');
+      }
+    } catch (error) {
+      console.error('Error updating restaurant:', error);
+      alert('เกิดข้อผิดพลาดในการอัพเดทสถานะ');
     }
   };
+
+  const getCategoryText = (category: string) => {
+    const categories: { [key: string]: string } = {
+      'thai': 'อาหารไทย',
+      'international': 'อาหารนานาชาติ',
+      'cafe': 'คาเฟ่',
+      'street_food': 'อาหารข้างทาง',
+      'fine_dining': 'อาหารหรู',
+      'fast_food': 'ฟาสต์ฟู้ด',
+      'seafood': 'อาหารทะเล',
+      'other': 'อื่นๆ'
+    };
+    return categories[category] || 'อื่นๆ';
+  };
+
+  const filteredRestaurants = restaurants.filter(restaurant => {
+    const matchesSearch = restaurant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         restaurant.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = !selectedCategory || restaurant.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
 
   if (!isAdmin) {
     return (
@@ -100,218 +135,180 @@ export default function RestaurantsPage() {
     );
   }
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">กำลังโหลดข้อมูล...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-600 mb-4">
+            <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">เกิดข้อผิดพลาด</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button
+            onClick={fetchRestaurants}
+            className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+          >
+            ลองใหม่
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
+          <nav className="flex items-center space-x-2 text-sm text-gray-600 mb-4">
+            <Link href="/admin" className="hover:text-green-600">แอดมิน</Link>
+            <span>›</span>
+            <span className="text-gray-900">ร้านอาหาร</span>
+          </nav>
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">จัดการร้านอาหาร</h1>
-              <p className="text-gray-600 mt-1">จัดการข้อมูลร้านอาหารในชุมชนบางลำพู</p>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">จัดการร้านอาหาร</h1>
+              <p className="text-gray-600">จัดการข้อมูลร้านอาหารและเมนู</p>
             </div>
             <Link
               href="/admin/restaurants/create"
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+              className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 font-medium shadow-sm hover:shadow-md transition-all duration-200"
             >
-              เพิ่มร้านอาหาร
+              เพิ่มร้านอาหารใหม่
             </Link>
           </div>
         </div>
 
-        {/* Search and Filter */}
-        <div className="bg-white rounded-lg shadow p-6 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                ค้นหา
-              </label>
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="ค้นหาชื่อหรือคำอธิบาย"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                ประเภทอาหาร
-              </label>
-              <select
-                value={selectedCuisine}
-                onChange={(e) => setSelectedCuisine(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              >
-                <option value="">ทั้งหมด</option>
-                <option value="อาหารไทย">อาหารไทย</option>
-                <option value="อาหารจีน">อาหารจีน</option>
-                <option value="อาหารญี่ปุ่น">อาหารญี่ปุ่น</option>
-                <option value="อาหารเกาหลี">อาหารเกาหลี</option>
-                <option value="อาหารตะวันตก">อาหารตะวันตก</option>
-                <option value="ขนมหวาน">ขนมหวาน</option>
-                <option value="เครื่องดื่ม">เครื่องดื่ม</option>
-                <option value="อื่นๆ">อื่นๆ</option>
-              </select>
-            </div>
-            <div className="flex items-end">
-              <button
-                onClick={handleSearch}
-                className="w-full bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700"
-              >
-                ค้นหา
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Restaurants List */}
-        <div className="bg-white rounded-lg shadow">
-          {loading ? (
-            <div className="p-8 text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-              <p className="mt-2 text-gray-600">กำลังโหลด...</p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      รูปภาพ
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      ชื่อร้าน
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      ประเภทอาหาร
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      ราคา
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      ที่อยู่
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      คะแนน
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      สถานะ
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      จัดการ
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {restaurants.map((restaurant) => (
-                    <tr key={restaurant._id}>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="h-12 w-12 rounded-lg overflow-hidden">
-                          {restaurant.images[0] ? (
-                            <img
-                              src={restaurant.images[0]}
-                              alt={restaurant.name}
-                              className="h-full w-full object-cover"
-                            />
-                          ) : (
-                            <div className="h-full w-full bg-gray-200 flex items-center justify-center">
-                              <svg className="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                              </svg>
-                            </div>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">{restaurant.name}</div>
-                        <div className="text-sm text-gray-500 truncate max-w-xs">
-                          {restaurant.description}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex flex-wrap gap-1">
-                          {restaurant.cuisine.slice(0, 2).map((cuisine, index) => (
-                            <span key={index} className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">
-                              {cuisine}
-                            </span>
-                          ))}
-                          {restaurant.cuisine.length > 2 && (
-                            <span className="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded-full">
-                              +{restaurant.cuisine.length - 2}
-                            </span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 py-1 text-xs rounded-full ${
-                          restaurant.priceRange === 'budget' ? 'bg-green-100 text-green-800' :
-                          restaurant.priceRange === 'moderate' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-red-100 text-red-800'
-                        }`}>
-                          {getPriceRangeText(restaurant.priceRange)}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {restaurant.location.address}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <span className="text-sm text-gray-900">{restaurant.rating.toFixed(1)}</span>
-                          <span className="text-sm text-gray-500 ml-1">({restaurant.reviewCount})</span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          restaurant.isActive 
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-red-100 text-red-800'
-                        }`}>
-                          {restaurant.isActive ? 'เปิดใช้งาน' : 'ปิดใช้งาน'}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <div className="flex space-x-2">
-                          <Link
-                            href={`/admin/restaurants/${restaurant._id}/edit`}
-                            className="text-blue-600 hover:text-blue-900"
-                          >
-                            แก้ไข
-                          </Link>
-                          <button
-                            onClick={() => handleDelete(restaurant._id)}
-                            className="text-red-600 hover:text-red-900"
-                          >
-                            ลบ
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              
-              {restaurants.length === 0 && (
-                <div className="p-8 text-center text-gray-500">
-                  ไม่พบร้านอาหาร
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Back to Admin */}
-        <div className="mt-8 text-center">
-          <Link
-            href="/admin"
-            className="inline-flex items-center px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+        {/* Filters */}
+        <div className="mb-6 flex flex-col sm:flex-row gap-4">
+          <input
+            type="text"
+            placeholder="ค้นหาร้านอาหาร..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-green-500 focus:border-green-500 text-gray-900 font-medium placeholder-gray-500 shadow-sm hover:shadow-md focus:shadow-md"
+          />
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-green-500 focus:border-green-500 text-gray-900 font-medium bg-white shadow-sm hover:shadow-md focus:shadow-md"
           >
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            กลับไประบบจัดการ
-          </Link>
+            <option value="">หมวดหมู่ทั้งหมด</option>
+            <option value="thai">อาหารไทย</option>
+            <option value="international">อาหารนานาชาติ</option>
+            <option value="cafe">คาเฟ่</option>
+            <option value="street_food">อาหารข้างทาง</option>
+            <option value="fine_dining">อาหารหรู</option>
+            <option value="fast_food">ฟาสต์ฟู้ด</option>
+            <option value="seafood">อาหารทะเล</option>
+            <option value="other">อื่นๆ</option>
+          </select>
         </div>
+
+        {/* Restaurants Grid */}
+        {filteredRestaurants.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="text-gray-400 mb-4">
+              <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01" />
+              </svg>
+            </div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">ยังไม่มีร้านอาหาร</h3>
+            <p className="text-gray-600 mb-4">เริ่มเพิ่มร้านอาหารแรกของคุณ</p>
+            <Link
+              href="/admin/restaurants/create"
+              className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 font-medium"
+            >
+              เพิ่มร้านอาหารใหม่
+            </Link>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredRestaurants.map((restaurant) => (
+              <div key={restaurant._id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200">
+                <div className="aspect-w-16 aspect-h-9">
+                  <img
+                    src={restaurant.images[0] || '/placeholder-restaurant.jpg'}
+                    alt={restaurant.name}
+                    className="w-full h-48 object-cover"
+                  />
+                </div>
+                <div className="p-6">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-lg font-semibold text-gray-900 line-clamp-2">
+                      {restaurant.name}
+                    </h3>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      restaurant.isActive 
+                        ? 'bg-green-100 text-green-800' 
+                        : 'bg-red-100 text-red-800'
+                    }`}>
+                      {restaurant.isActive ? 'เปิดใช้งาน' : 'ปิดใช้งาน'}
+                    </span>
+                  </div>
+                  <p className="text-gray-600 text-sm mb-2 line-clamp-2">
+                    {restaurant.description}
+                  </p>
+                  <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
+                    <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
+                      {getCategoryText(restaurant.category)}
+                    </span>
+                    <span className="text-yellow-600 font-medium">
+                      {'$'.repeat(restaurant.priceRange.length)} • ⭐ {restaurant.rating.toFixed(1)}
+                    </span>
+                  </div>
+                  <div className="flex flex-col space-y-2">
+                    <div className="flex space-x-2">
+                      <Link
+                        href={`/admin/restaurants/${restaurant._id}/menus`}
+                        className="flex-1 bg-purple-600 text-white text-center py-2 px-4 rounded-lg hover:bg-purple-700 font-medium transition-colors duration-200"
+                      >
+                        จัดการเมนู
+                      </Link>
+                      <Link
+                        href={`/admin/restaurants/${restaurant._id}/edit`}
+                        className="flex-1 bg-blue-600 text-white text-center py-2 px-4 rounded-lg hover:bg-blue-700 font-medium transition-colors duration-200"
+                      >
+                        แก้ไข
+                      </Link>
+                    </div>
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => toggleActive(restaurant._id, restaurant.isActive)}
+                        className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors duration-200 ${
+                          restaurant.isActive
+                            ? 'bg-yellow-600 text-white hover:bg-yellow-700'
+                            : 'bg-green-600 text-white hover:bg-green-700'
+                        }`}
+                      >
+                        {restaurant.isActive ? 'ปิดใช้งาน' : 'เปิดใช้งาน'}
+                      </button>
+                      <button
+                        onClick={() => handleDelete(restaurant._id)}
+                        className="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 font-medium transition-colors duration-200"
+                      >
+                        ลบ
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

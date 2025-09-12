@@ -3,11 +3,13 @@
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get('redirect') || '/';
+  const { login } = useAuth();
   
   const [formData, setFormData] = useState({
     email: '',
@@ -30,25 +32,16 @@ export default function LoginPage() {
     setError('');
 
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(formData),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
+      const success = await login(formData.email, formData.password);
+      
+      if (success) {
         // Redirect to the intended page or home
         router.push(redirect);
       } else {
-        setError(data.error || 'Login failed');
+        setError('อีเมลหรือรหัสผ่านไม่ถูกต้อง');
       }
     } catch (error) {
-      setError('An error occurred. Please try again.');
+      setError('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง');
     } finally {
       setIsLoading(false);
     }

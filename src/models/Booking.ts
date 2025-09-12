@@ -3,18 +3,27 @@ import mongoose, { Document, Schema } from 'mongoose';
 export interface IBooking extends Document {
   packageId: mongoose.Types.ObjectId;
   userId: mongoose.Types.ObjectId;
-  customerInfo: {
+  tourDate: {
+    date: Date;
+    startTime: string;
+    endTime: string;
+  };
+  participants: number;
+  totalPrice: number;
+  status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
+  paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded';
+  paymentMethod: 'bank_transfer' | 'credit_card' | 'cash';
+  paymentSlip?: string;
+  paymentDate?: Date;
+  contactInfo: {
     name: string;
     email: string;
     phone: string;
+    emergencyContact?: string;
+    specialRequests?: string;
   };
-  participants: number;
-  bookingDate: Date;
-  totalPrice: number;
-  status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
-  paymentStatus: 'pending' | 'paid' | 'refunded';
-  specialRequests?: string;
   notes?: string;
+  adminNotes?: string;
 }
 
 const BookingSchema: Schema = new Schema({
@@ -28,31 +37,24 @@ const BookingSchema: Schema = new Schema({
     ref: 'User',
     required: true
   },
-  customerInfo: {
-    name: {
-      type: String,
-      required: true,
-      maxlength: 100
+  tourDate: {
+    date: {
+      type: Date,
+      required: true
     },
-    email: {
+    startTime: {
       type: String,
-      required: true,
-      maxlength: 100
+      required: true
     },
-    phone: {
+    endTime: {
       type: String,
-      required: true,
-      maxlength: 20
+      required: true
     }
   },
   participants: {
     type: Number,
     required: true,
     min: 1
-  },
-  bookingDate: {
-    type: Date,
-    required: true
   },
   totalPrice: {
     type: Number,
@@ -61,26 +63,67 @@ const BookingSchema: Schema = new Schema({
   },
   status: {
     type: String,
-    required: true,
     enum: ['pending', 'confirmed', 'cancelled', 'completed'],
     default: 'pending'
   },
   paymentStatus: {
     type: String,
-    required: true,
-    enum: ['pending', 'paid', 'refunded'],
+    enum: ['pending', 'paid', 'failed', 'refunded'],
     default: 'pending'
   },
-  specialRequests: {
+  paymentMethod: {
     type: String,
-    maxlength: 500
+    enum: ['bank_transfer', 'credit_card', 'cash'],
+    default: 'bank_transfer'
+  },
+  paymentSlip: {
+    type: String
+  },
+  paymentDate: {
+    type: Date
+  },
+  contactInfo: {
+    name: {
+      type: String,
+      required: true,
+      trim: true
+    },
+    email: {
+      type: String,
+      required: true,
+      trim: true,
+      lowercase: true
+    },
+    phone: {
+      type: String,
+      required: true,
+      trim: true
+    },
+    emergencyContact: {
+      type: String,
+      trim: true
+    },
+    specialRequests: {
+      type: String,
+      maxlength: 500
+    }
   },
   notes: {
     type: String,
-    maxlength: 500
+    maxlength: 1000
+  },
+  adminNotes: {
+    type: String,
+    maxlength: 1000
   }
 }, {
   timestamps: true
 });
+
+// Index for efficient queries
+BookingSchema.index({ packageId: 1, status: 1 });
+BookingSchema.index({ userId: 1, status: 1 });
+BookingSchema.index({ paymentStatus: 1 });
+BookingSchema.index({ 'tourDate.date': 1 });
 
 export default mongoose.models.Booking || mongoose.model<IBooking>('Booking', BookingSchema);

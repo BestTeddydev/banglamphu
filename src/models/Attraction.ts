@@ -13,25 +13,13 @@ export interface IAttraction extends Document {
   images: string[];
   category: string;
   openingHours: {
-    monday: string;
-    tuesday: string;
-    wednesday: string;
-    thursday: string;
-    friday: string;
-    saturday: string;
-    sunday: string;
+    open: string;
+    close: string;
   };
-  admissionFee: {
-    adult: number;
-    child: number;
-    student: number;
-  };
-  contact: {
-    phone?: string;
-    email?: string;
-    website?: string;
-  };
-  facilities: string[];
+  admissionFee: number;
+  contactInfo: string;
+  features: string[];
+  tags: string[];
   isActive: boolean;
   rating: number;
   reviewCount: number;
@@ -73,30 +61,27 @@ const AttractionSchema: Schema = new Schema({
   category: {
     type: String,
     required: true,
-    enum: ['วัด', 'ตลาด', 'พิพิธภัณฑ์', 'สวนสาธารณะ', 'สถานที่ประวัติศาสตร์', 'อื่นๆ']
+    enum: ['temple', 'market', 'museum', 'park', 'historical', 'cultural', 'other']
   },
   openingHours: {
-    monday: { type: String, default: '08:00-18:00' },
-    tuesday: { type: String, default: '08:00-18:00' },
-    wednesday: { type: String, default: '08:00-18:00' },
-    thursday: { type: String, default: '08:00-18:00' },
-    friday: { type: String, default: '08:00-18:00' },
-    saturday: { type: String, default: '08:00-18:00' },
-    sunday: { type: String, default: '08:00-18:00' }
+    open: { type: String, default: '08:00' },
+    close: { type: String, default: '18:00' }
   },
   admissionFee: {
-    adult: { type: Number, default: 0 },
-    child: { type: Number, default: 0 },
-    student: { type: Number, default: 0 }
+    type: Number,
+    default: 0
   },
-  contact: {
-    phone: { type: String, maxlength: 20 },
-    email: { type: String, maxlength: 100 },
-    website: { type: String, maxlength: 200 }
+  contactInfo: {
+    type: String,
+    maxlength: 200
   },
-  facilities: [{
+  features: [{
     type: String,
     maxlength: 100
+  }],
+  tags: [{
+    type: String,
+    maxlength: 50
   }],
   isActive: {
     type: Boolean,

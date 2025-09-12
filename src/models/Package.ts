@@ -20,6 +20,12 @@ export interface IPackage extends Document {
   isActive: boolean;
   rating: number;
   reviewCount: number;
+  tourDates: {
+    date: Date;
+    startTime: string;
+    endTime: string;
+    availableSlots: number;
+  }[];
 }
 
 const PackageSchema: Schema = new Schema({
@@ -67,8 +73,7 @@ const PackageSchema: Schema = new Schema({
     ref: 'Restaurant'
   }],
   images: [{
-    type: String,
-    required: true
+    type: String
   }],
   category: {
     type: String,
@@ -93,7 +98,26 @@ const PackageSchema: Schema = new Schema({
   reviewCount: {
     type: Number,
     default: 0
-  }
+  },
+  tourDates: [{
+    date: {
+      type: Date,
+      required: true
+    },
+    startTime: {
+      type: String,
+      required: true
+    },
+    endTime: {
+      type: String,
+      required: true
+    },
+    availableSlots: {
+      type: Number,
+      required: true,
+      min: 0
+    }
+  }]
 }, {
   timestamps: true
 });

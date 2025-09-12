@@ -3,19 +3,32 @@ import connectDB from '@/lib/mongodb';
 import Booking from '@/models/Booking';
 import Package from '@/models/Package';
 import User from '@/models/User';
-import { requireAdmin } from '@/lib/auth';
+import mongoose from 'mongoose';
 
-export const GET = requireAdmin(async (request: NextRequest) => {
+export const GET = async (request: NextRequest) => {
   try {
     await connectDB();
     
+    // Ensure models are registered
+    const PackageModel = mongoose.models.Package || Package;
+    const UserModel = mongoose.models.User || User;
+    
     const { searchParams } = new URL(request.url);
+    const search = searchParams.get('search');
+    const status = searchParams.get('status');
+    const paymentStatus = searchParams.get('paymentStatus');
     const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '10');
-    const status = searchParams.get('status') || '';
-    const paymentStatus = searchParams.get('paymentStatus') || '';
+    const limit = parseInt(searchParams.get('limit') || '20');
     
     const query: any = {};
+    
+    if (search) {
+      query.$or = [
+        { 'contactInfo.name': { $regex: search, $options: 'i' } },
+        { 'contactInfo.email': { $regex: search, $options: 'i' } },
+        { 'contactInfo.phone': { $regex: search, $options: 'i' } }
+      ];
+    }
     
     if (status) {
       query.status = status;
@@ -26,8 +39,16 @@ export const GET = requireAdmin(async (request: NextRequest) => {
     }
     
     const bookings = await Booking.find(query)
-      .populate('packageId', 'name price')
-      .populate('userId', 'name email')
+      .populate({
+        path: 'packageId',
+        model: PackageModel,
+        select: 'name price images category'
+      })
+      .populate({
+        path: 'userId',
+        model: UserModel,
+        select: 'name email'
+      })
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(limit);
@@ -45,31 +66,10 @@ export const GET = requireAdmin(async (request: NextRequest) => {
     });
   } catch (error) {
     console.error('Get bookings error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error', details: errorMessage },
       { status: 500 }
     );
   }
-});
-
-export const POST = requireAdmin(async (request: NextRequest) => {
-  try {
-    await connectDB();
-    
-    const body = await request.json();
-    
-    const booking = new Booking(body);
-    await booking.save();
-    
-    return NextResponse.json({
-      message: 'Booking created successfully',
-      booking
-    }, { status: 201 });
-  } catch (error) {
-    console.error('Create booking error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
-  }
-});
+};

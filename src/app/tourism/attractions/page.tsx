@@ -1,72 +1,61 @@
+'use client';
+
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
+
+interface Attraction {
+  _id: string;
+  name: string;
+  description: string;
+  images: string[];
+  location: {
+    address: string;
+    coordinates: {
+      lat: number;
+      lng: number;
+    };
+  };
+  category: string;
+  openingHours: {
+    open: string;
+    close: string;
+  };
+  admissionFee: number;
+  contactInfo: string;
+  features: string[];
+  tags: string[];
+}
 
 export default function AttractionsPage() {
-  const attractionsData = [
-    {
-      id: 1,
-      name: "วัดบางลำพู",
-      description: "วัดเก่าแก่ที่มีประวัติศาสตร์ยาวนานกว่า 200 ปี เป็นศูนย์กลางทางจิตใจของชุมชนบางลำพู",
-      images: ["/api/placeholder/400/250"],
-      location: {
-        address: "ถนนบางลำพู กรุงเทพมหานคร",
-        coordinates: { lat: 13.7563, lng: 100.5018 }
-      },
-      category: "temple",
-      openingHours: { open: "06:00", close: "18:00" },
-      admissionFee: 0,
-      contactInfo: "02-xxx-xxxx",
-      features: ["สถาปัตยกรรมไทย", "พระพุทธรูปเก่าแก่", "สวนสาธารณะ"],
-      tags: ["วัด", "ประวัติศาสตร์", "วัฒนธรรม"]
-    },
-    {
-      id: 2,
-      name: "ตลาดบางลำพู",
-      description: "ตลาดท้องถิ่นที่เต็มไปด้วยอาหารพื้นบ้าน สินค้าท้องถิ่น และวิถีชีวิตของชุมชน",
-      images: ["/api/placeholder/400/250"],
-      location: {
-        address: "ถนนตลาดบางลำพู กรุงเทพมหานคร",
-        coordinates: { lat: 13.7573, lng: 100.5028 }
-      },
-      category: "market",
-      openingHours: { open: "05:00", close: "12:00" },
-      admissionFee: 0,
-      contactInfo: "02-xxx-xxxx",
-      features: ["อาหารพื้นบ้าน", "สินค้าท้องถิ่น", "วิถีชีวิตชุมชน"],
-      tags: ["ตลาด", "อาหาร", "วัฒนธรรม"]
-    },
-    {
-      id: 3,
-      name: "พิพิธภัณฑ์ชุมชนบางลำพู",
-      description: "พิพิธภัณฑ์ที่บอกเล่าเรื่องราวและประวัติศาสตร์ของชุมชนบางลำพู",
-      images: ["/api/placeholder/400/250"],
-      location: {
-        address: "ศูนย์วัฒนธรรมบางลำพู กรุงเทพมหานคร",
-        coordinates: { lat: 13.7583, lng: 100.5038 }
-      },
-      category: "museum",
-      openingHours: { open: "09:00", close: "17:00" },
-      admissionFee: 50,
-      contactInfo: "02-xxx-xxxx",
-      features: ["นิทรรศการประวัติศาสตร์", "ของโบราณ", "กิจกรรมเรียนรู้"],
-      tags: ["พิพิธภัณฑ์", "ประวัติศาสตร์", "การศึกษา"]
-    },
-    {
-      id: 4,
-      name: "สวนสาธารณะบางลำพู",
-      description: "สวนสาธารณะที่ให้บริการพื้นที่พักผ่อนและออกกำลังกายสำหรับชุมชน",
-      images: ["/api/placeholder/400/250"],
-      location: {
-        address: "สวนสาธารณะบางลำพู กรุงเทพมหานคร",
-        coordinates: { lat: 13.7593, lng: 100.5048 }
-      },
-      category: "park",
-      openingHours: { open: "05:00", close: "21:00" },
-      admissionFee: 0,
-      contactInfo: "02-xxx-xxxx",
-      features: ["พื้นที่ออกกำลังกาย", "สวนดอกไม้", "ลานกิจกรรม"],
-      tags: ["สวนสาธารณะ", "ออกกำลังกาย", "ธรรมชาติ"]
+  const [attractionsData, setAttractionsData] = useState<Attraction[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+
+  useEffect(() => {
+    fetchAttractions();
+  }, []);
+
+  const fetchAttractions = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/attractions');
+      if (!response.ok) {
+        throw new Error('Failed to fetch attractions');
+      }
+      const data = await response.json();
+      setAttractionsData(data.attractions || []);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
+
+  const filteredAttractions = selectedCategory === 'all' 
+    ? attractionsData 
+    : attractionsData.filter(attraction => attraction.category === selectedCategory);
+
 
   const getCategoryColor = (category: string) => {
     switch (category) {
@@ -109,29 +98,113 @@ export default function AttractionsPage() {
         {/* Filter Tabs */}
         <div className="mb-8">
           <div className="flex flex-wrap gap-2">
-            <button className="px-4 py-2 bg-green-600 text-white rounded-lg font-medium">
+            <button 
+              onClick={() => setSelectedCategory('all')}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors duration-200 ${
+                selectedCategory === 'all' 
+                  ? 'bg-green-600 text-white' 
+                  : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+              }`}
+            >
               ทั้งหมด
             </button>
-            <button className="px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg font-medium hover:bg-gray-50">
+            <button 
+              onClick={() => setSelectedCategory('temple')}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors duration-200 ${
+                selectedCategory === 'temple' 
+                  ? 'bg-green-600 text-white' 
+                  : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+              }`}
+            >
               วัด
             </button>
-            <button className="px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg font-medium hover:bg-gray-50">
+            <button 
+              onClick={() => setSelectedCategory('museum')}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors duration-200 ${
+                selectedCategory === 'museum' 
+                  ? 'bg-green-600 text-white' 
+                  : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+              }`}
+            >
               พิพิธภัณฑ์
             </button>
-            <button className="px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg font-medium hover:bg-gray-50">
+            <button 
+              onClick={() => setSelectedCategory('market')}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors duration-200 ${
+                selectedCategory === 'market' 
+                  ? 'bg-green-600 text-white' 
+                  : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+              }`}
+            >
               ตลาด
             </button>
-            <button className="px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg font-medium hover:bg-gray-50">
+            <button 
+              onClick={() => setSelectedCategory('park')}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors duration-200 ${
+                selectedCategory === 'park' 
+                  ? 'bg-green-600 text-white' 
+                  : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+              }`}
+            >
               สวนสาธารณะ
             </button>
           </div>
         </div>
 
+        {/* Loading State */}
+        {loading && (
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+            <span className="ml-3 text-gray-600">กำลังโหลดข้อมูล...</span>
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+            <div className="text-red-600 mb-2">
+              <svg className="w-12 h-12 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+              <h3 className="text-lg font-semibold mb-2">เกิดข้อผิดพลาด</h3>
+              <p className="text-red-700 mb-4">{error}</p>
+              <button 
+                onClick={fetchAttractions}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200"
+              >
+                ลองใหม่
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Attractions Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {attractionsData.map((attraction) => (
-            <article key={attraction.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200">
-              <div className="h-48 bg-gradient-to-r from-blue-400 to-purple-500"></div>
+        {!loading && !error && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredAttractions.length === 0 ? (
+              <div className="col-span-full text-center py-12">
+                <div className="text-gray-400 mb-4">
+                  <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">ไม่พบข้อมูล</h3>
+                <p className="text-gray-600">ไม่พบแหล่งท่องเที่ยวในหมวดหมู่นี้</p>
+              </div>
+            ) : (
+              filteredAttractions.map((attraction) => (
+                <article key={attraction._id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200">
+              <div className="h-48 relative overflow-hidden">
+                {attraction.images && attraction.images.length > 0 ? (
+                  <img 
+                    src={attraction.images[0]} 
+                    alt={attraction.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-r from-blue-400 to-purple-500"></div>
+                )}
+              </div>
               <div className="p-6">
                 <div className="flex items-center justify-between mb-3">
                   <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getCategoryColor(attraction.category)}`}>
@@ -143,7 +216,7 @@ export default function AttractionsPage() {
                 </div>
                 
                 <h2 className="text-lg font-semibold mb-3 line-clamp-2">
-                  <Link href={`/tourism/attractions/${attraction.id}`} className="hover:text-green-600 transition-colors duration-200">
+                  <Link href={`/tourism/attractions/${attraction._id}`} className="hover:text-green-600 transition-colors duration-200">
                     {attraction.name}
                   </Link>
                 </h2>
@@ -176,14 +249,16 @@ export default function AttractionsPage() {
                       </span>
                     ))}
                   </div>
-                  <Link href={`/tourism/attractions/${attraction.id}`} className="text-green-600 hover:text-green-800 font-medium text-sm">
+                  <Link href={`/tourism/attractions/${attraction._id}`} className="text-green-600 hover:text-green-800 font-medium text-sm">
                     ดูรายละเอียด →
                   </Link>
                 </div>
               </div>
             </article>
-          ))}
-        </div>
+              ))
+            )}
+          </div>
+        )}
 
         {/* Pagination */}
         <div className="mt-12 flex justify-center">

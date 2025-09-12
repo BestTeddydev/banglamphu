@@ -3,18 +3,22 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-
+import Image from 'next/image';
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, logout, isAdmin } = useAuth();
 
   const navigation = [
     { name: 'หน้าแรก', href: '/' },
-    { name: 'ข่าวสาร', href: '/news' },
-    { name: 'กิจกรรม', href: '/events' },
-    { name: 'ท่องเที่ยว', href: '/tourism' },
-    { name: 'ติดต่อ', href: '/contact' },
-    { name: 'เกี่ยวกับชุมชน', href: '/about' },
+    // { name: 'ข่าวสาร', href: '/news' },
+    // { name: 'กิจกรรม', href: '/events' },
+    { name: 'ท่องเที่ยว', href: '/tourism/attractions' },
+    { name: 'ร้านอาหาร', href: '/tourism/restaurants' },
+    { name: 'แพ็คเกจทัวร์', href: '/tourism/packages' },
+    { name: 'ปรับแต่งแพ็คเกจทัวร์', href: '/tourism/custom-tour' },
+    { name: 'ข่าวสาร และ กิจกรรม', href: '/tourism/stories' },
+    // { name: 'ติดต่อ', href: '/contact' },
+    // { name: 'เกี่ยวกับชุมชน', href: '/about' },
   ];
 
   return (
@@ -25,7 +29,14 @@ export default function Header() {
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">บ</span>
+              <Image
+              src="/logo.jpeg"
+              alt="โลโก้ชุมชนบางลำพู"
+              width={80}
+              height={80}
+              className="rounded-lg"
+              priority
+            />
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-900">ชุมชนบางลำพู</h1>

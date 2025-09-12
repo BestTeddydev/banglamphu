@@ -1,201 +1,187 @@
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function Home() {
   return (
-    <div className="min-h-screen">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl md:text-6xl font-bold mb-6">
-            ยินดีต้อนรับสู่ชุมชนบางลำพู
-          </h1>
-          <p className="text-xl md:text-2xl mb-8 text-blue-100">
-            ศูนย์กลางข้อมูลข่าวสาร กิจกรรม และการติดต่อของชุมชน
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/news"
-              className="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-200"
-            >
-              อ่านข่าวสาร
-            </Link>
-            <Link
-              href="/events"
-              className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors duration-200"
-            >
-              ดูกิจกรรม
-            </Link>
-          </div>
+    <div className="min-h-screen bg-gray-50">
+
+      {/* Banner Section */}
+      <section className="relative">
+        <div className="relative h-96 overflow-hidden">
+          <Image
+            src="/banner.jpg"
+            alt="แบนเนอร์ชุมชนบางลำพู"
+            fill
+            className="object-cover"
+            priority
+          />
+      
         </div>
       </section>
 
-      {/* Features Section */}
+      {/* Main Menu Section */}
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
-            บริการของชุมชน
+            เมนูหลัก
           </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {/* แหล่งท่องเที่ยว */}
+            <Link href="/tourism/attractions" className="group">
+              <div className="text-center p-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-blue-50 to-blue-100 group-hover:from-blue-100 group-hover:to-blue-200">
+                <div className="w-20 h-20 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                  <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </div>
+                <h3 className="text-2xl font-bold mb-4 text-gray-900">แหล่งท่องเที่ยว</h3>
+                <p className="text-gray-600 mb-6">
+                  สำรวจสถานที่ท่องเที่ยวที่น่าสนใจในชุมชนบางลำพู
+                </p>
+                <div className="inline-flex items-center text-blue-600 font-semibold group-hover:text-blue-800">
+                  เริ่มสำรวจ
+                  <svg className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+              </div>
+            </Link>
+
+            {/* ร้านอาหาร */}
+            <Link href="/tourism/restaurants" className="group">
+              <div className="text-center p-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-green-50 to-green-100 group-hover:from-green-100 group-hover:to-green-200">
+                <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                  <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                </div>
+                <h3 className="text-2xl font-bold mb-4 text-gray-900">ร้านอาหาร</h3>
+                <p className="text-gray-600 mb-6">
+                  ค้นหาร้านอาหารอร่อยและอาหารพื้นบ้านในชุมชน
+                </p>
+                <div className="inline-flex items-center text-green-600 font-semibold group-hover:text-green-800">
+                  ดูร้านอาหาร
+                  <svg className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+              </div>
+            </Link>
+
+            {/* โปรแกรมทัวร์ */}
+            <Link href="/tourism/packages" className="group">
+              <div className="text-center p-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-purple-50 to-purple-100 group-hover:from-purple-100 group-hover:to-purple-200">
+                <div className="w-20 h-20 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                  <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <h3 className="text-2xl font-bold mb-4 text-gray-900">โปรแกรมทัวร์</h3>
+                <p className="text-gray-600 mb-6">
+                  เลือกโปรแกรมทัวร์ที่จัดไว้ให้สำหรับการเที่ยวชมชุมชน
+                </p>
+                <div className="inline-flex items-center text-purple-600 font-semibold group-hover:text-purple-800">
+                  ดูโปรแกรมทัวร์
+                  <svg className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+              </div>
+            </Link>
+
+            {/* ปรับแต่งโปรแกรมท่องเที่ยว */}
+            <Link href="/tourism/custom-tour" className="group">
+              <div className="text-center p-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-orange-50 to-orange-100 group-hover:from-orange-100 group-hover:to-orange-200">
+                <div className="w-20 h-20 bg-orange-500 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                  <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
+                  </svg>
+                </div>
+                <h3 className="text-2xl font-bold mb-4 text-gray-900">ปรับแต่งโปรแกรมท่องเที่ยว</h3>
+                <p className="text-gray-600 mb-6">
+                  สร้างโปรแกรมท่องเที่ยวของคุณเองตามความต้องการ
+                </p>
+                <div className="inline-flex items-center text-orange-600 font-semibold group-hover:text-orange-800">
+                  เริ่มสร้าง
+                  <svg className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+              </div>
+            </Link>
+
+            {/* นิทาน */}
+            <Link href="/tourism/stories" className="group">
+              <div className="text-center p-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-pink-50 to-pink-100 group-hover:from-pink-100 group-hover:to-pink-200">
+                <div className="w-20 h-20 bg-pink-500 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                  <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                  </svg>
+                </div>
+                <h3 className="text-2xl font-bold mb-4 text-gray-900">ข่าวสาร และ กิจกรรม</h3>
+                <p className="text-gray-600 mb-6">
+                  อ่านนิทานและเรื่องเล่าประวัติศาสตร์ของชุมชนบางลำพู
+                </p>
+                <div className="inline-flex items-center text-pink-600 font-semibold group-hover:text-pink-800">
+                  อ่านนิทาน
+                  <svg className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+              </div>
+            </Link>
+
+           
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-gray-900 text-white py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-200">
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-                </svg>
+            <div>
+              <div className="flex items-center mb-4">
+                <Image
+                  src="/logo.jpeg"
+                  alt="โลโก้ชุมชนบางลำพู"
+                  width={40}
+                  height={40}
+                  className="rounded-lg"
+                />
+                <h3 className="text-xl font-bold ml-3">ชุมชนบางลำพู</h3>
               </div>
-              <h3 className="text-xl font-semibold mb-3">ข่าวสารชุมชน</h3>
-              <p className="text-gray-600">
-                ติดตามข่าวสารและประกาศต่างๆ ของชุมชนอย่างทันสมัย
+              <p className="text-gray-400 mb-4">
+                ศูนย์กลางการท่องเที่ยวและวัฒนธรรมแห่งกรุงเทพมหานคร
+              </p>
+              <p className="text-sm text-gray-500">
+                © 2024 ชุมชนบางลำพู. สงวนลิขสิทธิ์.
               </p>
             </div>
             
-            <div className="text-center p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-200">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold mb-3">กิจกรรมชุมชน</h3>
-              <p className="text-gray-600">
-                เข้าร่วมกิจกรรมต่างๆ ของชุมชนและสร้างความสัมพันธ์ที่ดี
-              </p>
+            <div>
+              <h4 className="text-lg font-semibold mb-4">เมนูหลัก</h4>
+              <ul className="space-y-2">
+                <li><Link href="/tourism/attractions" className="text-gray-400 hover:text-white transition-colors">แหล่งท่องเที่ยว</Link></li>
+                <li><Link href="/tourism/restaurants" className="text-gray-400 hover:text-white transition-colors">ร้านอาหาร</Link></li>
+                <li><Link href="/tourism/packages" className="text-gray-400 hover:text-white transition-colors">โปรแกรมทัวร์</Link></li>
+                <li><Link href="/tourism/custom-tour" className="text-gray-400 hover:text-white transition-colors">ปรับแต่งโปรแกรมท่องเที่ยว</Link></li>
+                <li><Link href="/tourism/stories" className="text-gray-400 hover:text-white transition-colors">นิทาน</Link></li>
+              </ul>
             </div>
             
-            <div className="text-center p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-200">
-              <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold mb-3">ติดต่อชุมชน</h3>
-              <p className="text-gray-600">
-                ติดต่อสอบถามข้อมูลหรือแจ้งปัญหาต่างๆ ได้อย่างสะดวก
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Latest News Preview */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-900">ข่าวสารล่าสุด</h2>
-            <Link
-              href="/news"
-              className="text-blue-600 hover:text-blue-800 font-semibold"
-            >
-              ดูทั้งหมด →
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* Sample news cards */}
-            <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200">
-              <div className="h-48 bg-gradient-to-r from-blue-400 to-purple-500"></div>
-              <div className="p-6">
-                <span className="text-sm text-blue-600 font-semibold">ข่าวทั่วไป</span>
-                <h3 className="text-lg font-semibold mt-2 mb-2">ประชุมชุมชนประจำเดือน</h3>
-                <p className="text-gray-600 text-sm mb-4">
-                  การประชุมชุมชนประจำเดือนมกราคม 2567 เพื่อหารือเรื่องการพัฒนาชุมชน
-                </p>
-                <div className="flex justify-between items-center text-sm text-gray-500">
-                  <span>15 ม.ค. 2567</span>
-                  <span>อ่านต่อ →</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200">
-              <div className="h-48 bg-gradient-to-r from-green-400 to-blue-500"></div>
-              <div className="p-6">
-                <span className="text-sm text-green-600 font-semibold">กิจกรรม</span>
-                <h3 className="text-lg font-semibold mt-2 mb-2">งานวันเด็กแห่งชาติ</h3>
-                <p className="text-gray-600 text-sm mb-4">
-                  กิจกรรมวันเด็กแห่งชาติประจำปี 2567 พร้อมของรางวัลและอาหาร
-                </p>
-                <div className="flex justify-between items-center text-sm text-gray-500">
-                  <span>10 ม.ค. 2567</span>
-                  <span>อ่านต่อ →</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200">
-              <div className="h-48 bg-gradient-to-r from-purple-400 to-pink-500"></div>
-              <div className="p-6">
-                <span className="text-sm text-purple-600 font-semibold">ประกาศ</span>
-                <h3 className="text-lg font-semibold mt-2 mb-2">การปรับปรุงถนนในชุมชน</h3>
-                <p className="text-gray-600 text-sm mb-4">
-                  แจ้งให้ทราบเรื่องการปรับปรุงถนนในชุมชนบางลำพู
-                </p>
-                <div className="flex justify-between items-center text-sm text-gray-500">
-                  <span>5 ม.ค. 2567</span>
-                  <span>อ่านต่อ →</span>
-                </div>
+            <div>
+              <h4 className="text-lg font-semibold mb-4">ติดต่อเรา</h4>
+              <div className="space-y-2 text-gray-400">
+                <p>📧 info@banglamphu.com</p>
+                <p>📞 02-123-4567</p>
+                <p>📍 กรุงเทพมหานคร ประเทศไทย</p>
               </div>
             </div>
           </div>
         </div>
-      </section>
-
-      {/* Upcoming Events */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-900">กิจกรรมที่จะมาถึง</h2>
-            <Link
-              href="/events"
-              className="text-blue-600 hover:text-blue-800 font-semibold"
-            >
-              ดูทั้งหมด →
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-6 border-l-4 border-blue-500">
-              <div className="flex items-center mb-4">
-                <div className="bg-blue-500 text-white rounded-full w-12 h-12 flex items-center justify-center font-bold text-lg mr-4">
-                  20
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold">งานบุญประจำปี</h3>
-                  <p className="text-gray-600">กุมภาพันธ์ 2567</p>
-                </div>
-              </div>
-              <p className="text-gray-700 mb-4">
-                งานบุญประจำปีของชุมชนบางลำพู พร้อมกิจกรรมต่างๆ และอาหารพื้นบ้าน
-              </p>
-              <div className="flex items-center text-sm text-gray-500">
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                วัดบางลำพู
-              </div>
-            </div>
-
-            <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg p-6 border-l-4 border-green-500">
-              <div className="flex items-center mb-4">
-                <div className="bg-green-500 text-white rounded-full w-12 h-12 flex items-center justify-center font-bold text-lg mr-4">
-                  25
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold">ตลาดนัดชุมชน</h3>
-                  <p className="text-gray-600">กุมภาพันธ์ 2567</p>
-                </div>
-              </div>
-              <p className="text-gray-700 mb-4">
-                ตลาดนัดชุมชนสำหรับขายสินค้าพื้นบ้านและอาหารท้องถิ่น
-              </p>
-              <div className="flex items-center text-sm text-gray-500">
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                ลานชุมชนบางลำพู
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      </footer>
     </div>
   );
 }

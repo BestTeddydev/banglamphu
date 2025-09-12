@@ -1,115 +1,135 @@
+'use client';
+
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
-export default function RestaurantsPage() {
-  const restaurantsData = [
-    {
-      id: 1,
-      name: "ร้านอาหารบ้านบางลำพู",
-      description: "ร้านอาหารพื้นบ้านที่เสิร์ฟอาหารไทยแท้ๆ รสชาติดั้งเดิม ใช้วัตถุดิบสดใหม่จากตลาดท้องถิ่น",
-      images: ["/api/placeholder/400/250"],
-      location: {
-        address: "ถนนอาหารบางลำพู กรุงเทพมหานคร",
-        coordinates: { lat: 13.7563, lng: 100.5018 }
-      },
-      cuisine: ["อาหารไทย", "อาหารพื้นบ้าน"],
-      menu: [
-        { name: "ข้าวผัดกุ้ง", description: "ข้าวผัดกุ้งสดรสเผ็ด", price: 80, category: "main" },
-        { name: "แกงเขียวหวานไก่", description: "แกงเขียวหวานไก่เนื้อนุ่ม", price: 120, category: "main" },
-        { name: "ส้มตำไทย", description: "ส้มตำไทยแท้ๆ", price: 60, category: "appetizer" }
-      ],
-      openingHours: { open: "10:00", close: "22:00" },
-      contactInfo: {
-        phone: "02-xxx-xxxx",
-        email: "info@restaurant.com",
-        website: "www.restaurant.com"
-      },
-      features: ["อาหารพื้นบ้าน", "วัตถุดิบสดใหม่", "ราคาประหยัด"],
-      tags: ["อาหารไทย", "พื้นบ้าน", "ประหยัด"]
-    },
-    {
-      id: 2,
-      name: "ร้านขนมโบราณบางลำพู",
-      description: "ร้านขนมโบราณที่ทำขนมไทยแบบดั้งเดิมด้วยมือ ใช้สูตรโบราณที่สืบทอดกันมา",
-      images: ["/api/placeholder/400/250"],
-      location: {
-        address: "ถนนขนมบางลำพู กรุงเทพมหานคร",
-        coordinates: { lat: 13.7573, lng: 100.5028 }
-      },
-      cuisine: ["ขนมไทย", "ของหวาน"],
-      menu: [
-        { name: "ขนมครก", description: "ขนมครกแบบโบราณ", price: 25, category: "dessert" },
-        { name: "ขนมถ้วย", description: "ขนมถ้วยน้ำกะทิ", price: 30, category: "dessert" },
-        { name: "ชาไทย", description: "ชาไทยเย็น", price: 20, category: "drink" }
-      ],
-      openingHours: { open: "08:00", close: "18:00" },
-      contactInfo: {
-        phone: "02-xxx-xxxx",
-        email: "sweet@restaurant.com"
-      },
-      features: ["ขนมโบราณ", "ทำด้วยมือ", "สูตรดั้งเดิม"],
-      tags: ["ขนมไทย", "โบราณ", "ของหวาน"]
-    },
-    {
-      id: 3,
-      name: "ร้านชาบางลำพู",
-      description: "ร้านชาที่เสิร์ฟชาไทยและเครื่องดื่มพื้นบ้าน พร้อมขนมไทยหลากหลายชนิด",
-      images: ["/api/placeholder/400/250"],
-      location: {
-        address: "ถนนชาบางลำพู กรุงเทพมหานคร",
-        coordinates: { lat: 13.7583, lng: 100.5038 }
-      },
-      cuisine: ["เครื่องดื่ม", "ชาไทย"],
-      menu: [
-        { name: "ชาไทยเย็น", description: "ชาไทยเย็นหวานหอม", price: 25, category: "drink" },
-        { name: "ชาเขียว", description: "ชาเขียวแท้ๆ", price: 30, category: "drink" },
-        { name: "ขนมปังปิ้ง", description: "ขนมปังปิ้งทาเนย", price: 15, category: "appetizer" }
-      ],
-      openingHours: { open: "07:00", close: "20:00" },
-      contactInfo: {
-        phone: "02-xxx-xxxx",
-        email: "tea@restaurant.com"
-      },
-      features: ["ชาไทยแท้", "บรรยากาศสบาย", "ขนมหลากหลาย"],
-      tags: ["ชาไทย", "เครื่องดื่ม", "บรรยากาศ"]
-    },
-    {
-      id: 4,
-      name: "ร้านอาหารริมน้ำบางลำพู",
-      description: "ร้านอาหารริมน้ำที่เสิร์ฟอาหารทะเลสดใหม่และอาหารไทยพื้นบ้าน พร้อมวิวแม่น้ำที่สวยงาม",
-      images: ["/api/placeholder/400/250"],
-      location: {
-        address: "ริมแม่น้ำบางลำพู กรุงเทพมหานคร",
-        coordinates: { lat: 13.7593, lng: 100.5048 }
-      },
-      cuisine: ["อาหารทะเล", "อาหารไทย"],
-      menu: [
-        { name: "กุ้งเผา", description: "กุ้งเผาใหญ่สดใหม่", price: 200, category: "main" },
-        { name: "ปลากะพงทอด", description: "ปลากะพงทอดกรอบ", price: 180, category: "main" },
-        { name: "ต้มยำกุ้ง", description: "ต้มยำกุ้งรสเผ็ด", price: 150, category: "main" }
-      ],
-      openingHours: { open: "11:00", close: "23:00" },
-      contactInfo: {
-        phone: "02-xxx-xxxx",
-        email: "seafood@restaurant.com",
-        website: "www.seafood.com"
-      },
-      features: ["อาหารทะเลสด", "วิวแม่น้ำ", "บรรยากาศโรแมนติก"],
-      tags: ["อาหารทะเล", "ริมน้ำ", "โรแมนติก"]
-    }
-  ];
+interface Restaurant {
+  _id: string;
+  name: string;
+  description: string;
+  category: string;
+  location: {
+    address: string;
+    coordinates: {
+      lat: number;
+      lng: number;
+    };
+  };
+  images: string[];
+  openingHours: {
+    open: string;
+    close: string;
+  };
+  contactInfo: string;
+  priceRange: string;
+  features: string[];
+  tags: string[];
+  rating: number;
+}
 
-  const getCuisineColor = (cuisine: string) => {
-    switch (cuisine) {
-      case 'อาหารไทย': return 'bg-red-100 text-red-800';
-      case 'อาหารพื้นบ้าน': return 'bg-orange-100 text-orange-800';
-      case 'ขนมไทย': return 'bg-pink-100 text-pink-800';
-      case 'ของหวาน': return 'bg-purple-100 text-purple-800';
-      case 'เครื่องดื่ม': return 'bg-blue-100 text-blue-800';
-      case 'ชาไทย': return 'bg-green-100 text-green-800';
-      case 'อาหารทะเล': return 'bg-teal-100 text-teal-800';
-      default: return 'bg-gray-100 text-gray-800';
+export default function RestaurantsPage() {
+  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+
+  useEffect(() => {
+    fetchRestaurants();
+  }, []);
+
+  const fetchRestaurants = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/restaurants');
+      if (!response.ok) {
+        throw new Error('Failed to fetch restaurants');
+      }
+      const data = await response.json();
+      setRestaurants(data.restaurants);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
+      setLoading(false);
     }
   };
+
+  const getCategoryText = (category: string) => {
+    const categories: { [key: string]: string } = {
+      'thai': 'อาหารไทย',
+      'international': 'อาหารนานาชาติ',
+      'cafe': 'คาเฟ่',
+      'street_food': 'อาหารข้างทาง',
+      'fine_dining': 'อาหารหรู',
+      'fast_food': 'ฟาสต์ฟู้ด',
+      'seafood': 'อาหารทะเล',
+      'other': 'อื่นๆ'
+    };
+    return categories[category] || 'อื่นๆ';
+  };
+
+  const getPriceRangeText = (priceRange: string) => {
+    const priceRanges: { [key: string]: string } = {
+      '$': 'ถูก',
+      '$$': 'ปานกลาง',
+      '$$$': 'แพง',
+      '$$$$': 'แพงมาก'
+    };
+    return priceRanges[priceRange] || 'ไม่ระบุ';
+  };
+
+  const filteredRestaurants = restaurants.filter(restaurant => {
+    const matchesCategory = !selectedCategory || restaurant.category === selectedCategory;
+    const matchesSearch = restaurant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         restaurant.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         restaurant.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+    return matchesCategory && matchesSearch;
+  });
+
+  const categories = [
+    { value: '', label: 'ทั้งหมด' },
+    { value: 'thai', label: 'อาหารไทย' },
+    { value: 'international', label: 'อาหารนานาชาติ' },
+    { value: 'cafe', label: 'คาเฟ่' },
+    { value: 'street_food', label: 'อาหารข้างทาง' },
+    { value: 'fine_dining', label: 'อาหารหรู' },
+    { value: 'fast_food', label: 'ฟาสต์ฟู้ด' },
+    { value: 'seafood', label: 'อาหารทะเล' },
+    { value: 'other', label: 'อื่นๆ' }
+  ];
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">กำลังโหลดร้านอาหาร...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-600 mb-4">
+            <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">เกิดข้อผิดพลาด</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button
+            onClick={fetchRestaurants}
+            className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+          >
+            ลองใหม่
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -121,124 +141,129 @@ export default function RestaurantsPage() {
             <span>›</span>
             <span className="text-gray-900">ร้านอาหาร</span>
           </nav>
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">ร้านอาหารบางลำพู</h1>
-          <p className="text-gray-600">ชิมอาหารท้องถิ่นและอาหารพื้นบ้านที่อร่อยในชุมชนบางลำพู</p>
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">ร้านอาหารในชุมชนบางลำพู</h1>
+          <p className="text-gray-700 text-lg">ค้นพบรสชาติอร่อยและประสบการณ์การกินที่หลากหลาย</p>
         </div>
 
-        {/* Filter Tabs */}
+        {/* Search and Filters */}
         <div className="mb-8">
+          <div className="flex flex-col sm:flex-row gap-4 mb-6">
+            <input
+              type="text"
+              placeholder="ค้นหาร้านอาหาร..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-green-500 focus:border-green-500 text-gray-900 font-medium placeholder-gray-500 shadow-sm hover:shadow-md focus:shadow-md"
+            />
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-green-500 focus:border-green-500 text-gray-900 font-medium bg-white shadow-sm hover:shadow-md focus:shadow-md"
+            >
+              {categories.map(category => (
+                <option key={category.value} value={category.value}>
+                  {category.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Category Filter Buttons */}
           <div className="flex flex-wrap gap-2">
-            <button className="px-4 py-2 bg-green-600 text-white rounded-lg font-medium">
-              ทั้งหมด
-            </button>
-            <button className="px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg font-medium hover:bg-gray-50">
-              อาหารไทย
-            </button>
-            <button className="px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg font-medium hover:bg-gray-50">
-              ขนมไทย
-            </button>
-            <button className="px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg font-medium hover:bg-gray-50">
-              เครื่องดื่ม
-            </button>
-            <button className="px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg font-medium hover:bg-gray-50">
-              อาหารทะเล
-            </button>
+            {categories.slice(1).map(category => (
+              <button
+                key={category.value}
+                onClick={() => setSelectedCategory(category.value)}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors duration-200 ${
+                  selectedCategory === category.value
+                    ? 'bg-green-600 text-white'
+                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                }`}
+              >
+                {category.label}
+              </button>
+            ))}
           </div>
         </div>
 
         {/* Restaurants Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {restaurantsData.map((restaurant) => (
-            <article key={restaurant.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200">
-              <div className="h-48 bg-gradient-to-r from-orange-400 to-red-500"></div>
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex flex-wrap gap-1">
-                    {restaurant.cuisine.slice(0, 2).map((cuisine) => (
-                      <span key={cuisine} className={`px-2 py-1 rounded-full text-xs font-semibold ${getCuisineColor(cuisine)}`}>
-                        {cuisine}
-                      </span>
-                    ))}
-                  </div>
-                  <span className="text-sm text-gray-500">
-                    เปิด {restaurant.openingHours.open} - {restaurant.openingHours.close}
-                  </span>
-                </div>
-                
-                <h2 className="text-xl font-semibold mb-3">
-                  <Link href={`/tourism/restaurants/${restaurant.id}`} className="hover:text-green-600 transition-colors duration-200">
-                    {restaurant.name}
-                  </Link>
-                </h2>
-                
-                <p className="text-gray-600 text-sm mb-4 line-clamp-3">
-                  {restaurant.description}
-                </p>
-                
-                <div className="space-y-2 mb-4">
-                  <div className="flex items-center text-sm text-gray-600">
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                    {restaurant.location.address}
-                  </div>
-                  <div className="flex items-center text-sm text-gray-600">
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                    </svg>
-                    {restaurant.contactInfo.phone}
-                  </div>
-                </div>
-                
-                {/* Menu Preview */}
-                <div className="mb-4">
-                  <h4 className="text-sm font-semibold text-gray-900 mb-2">เมนูแนะนำ</h4>
-                  <div className="space-y-1">
-                    {restaurant.menu.slice(0, 3).map((item, index) => (
-                      <div key={index} className="flex justify-between items-center text-sm">
-                        <span className="text-gray-700">{item.name}</span>
-                        <span className="text-green-600 font-medium">฿{item.price}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div className="flex flex-wrap gap-1">
-                    {restaurant.tags.slice(0, 2).map((tag) => (
-                      <span key={tag} className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                  <Link href={`/tourism/restaurants/${restaurant.id}`} className="text-green-600 hover:text-green-800 font-medium text-sm">
-                    ดูรายละเอียด →
-                  </Link>
-                </div>
-              </div>
-            </article>
-          ))}
-        </div>
-
-        {/* Pagination */}
-        <div className="mt-12 flex justify-center">
-          <nav className="flex items-center space-x-2">
-            <button className="px-3 py-2 text-gray-500 hover:text-gray-700">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+        {filteredRestaurants.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="text-gray-400 mb-4">
+              <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01" />
               </svg>
-            </button>
-            <button className="px-3 py-2 bg-green-600 text-white rounded-lg">1</button>
-            <button className="px-3 py-2 text-gray-700 hover:text-gray-900">2</button>
-            <button className="px-3 py-2 text-gray-700 hover:text-gray-900">3</button>
-            <button className="px-3 py-2 text-gray-500 hover:text-gray-700">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-          </nav>
-        </div>
+            </div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">ไม่พบร้านอาหาร</h3>
+            <p className="text-gray-600">ลองเปลี่ยนคำค้นหาหรือหมวดหมู่</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {filteredRestaurants.map((restaurant) => (
+              <Link
+                key={restaurant._id}
+                href={`/tourism/restaurants/${restaurant._id}`}
+                className="group bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+              >
+                <div className="aspect-w-16 aspect-h-9">
+                  <img
+                    src={restaurant.images[0] || '/placeholder-restaurant.jpg'}
+                    alt={restaurant.name}
+                    className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+                <div className="p-6">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-xl font-bold text-gray-900 group-hover:text-green-600 transition-colors duration-200 line-clamp-2">
+                      {restaurant.name}
+                    </h3>
+                    <div className="flex items-center text-yellow-500">
+                      <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
+                        <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/>
+                      </svg>
+                      <span className="ml-1 text-sm font-medium">{restaurant.rating.toFixed(1)}</span>
+                    </div>
+                  </div>
+                  
+                  <p className="text-gray-600 mb-4 line-clamp-3">
+                    {restaurant.description}
+                  </p>
+                  
+                  <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
+                    <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+                      {getCategoryText(restaurant.category)}
+                    </span>
+                    <span className="text-green-600 font-medium">
+                      {restaurant.priceRange} • {getPriceRangeText(restaurant.priceRange)}
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-center text-sm text-gray-500">
+                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>{restaurant.openingHours.open} - {restaurant.openingHours.close}</span>
+                  </div>
+                  
+                  {restaurant.features && restaurant.features.length > 0 && (
+                    <div className="mt-4 flex flex-wrap gap-1">
+                      {restaurant.features.slice(0, 3).map((feature, index) => (
+                        <span key={index} className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">
+                          {feature}
+                        </span>
+                      ))}
+                      {restaurant.features.length > 3 && (
+                        <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">
+                          +{restaurant.features.length - 3}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

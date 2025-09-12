@@ -3,9 +3,11 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { login } = useAuth();
   
   const [formData, setFormData] = useState({
     name: '',
@@ -61,8 +63,13 @@ export default function RegisterPage() {
       const data = await response.json();
 
       if (response.ok) {
-        // Redirect to login page with success message
-        router.push('/login?message=Registration successful. Please login.');
+        // Auto-login after successful registration
+        const loginSuccess = await login(formData.email, formData.password);
+        if (loginSuccess) {
+          router.push('/');
+        } else {
+          router.push('/login?message=Registration successful. Please login.');
+        }
       } else {
         setError(data.error || 'Registration failed');
       }

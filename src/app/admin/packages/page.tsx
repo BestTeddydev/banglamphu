@@ -26,6 +26,7 @@ export default function PackagesPage() {
   const { user, isAdmin } = useAuth();
   const [packages, setPackages] = useState<Package[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
 
@@ -37,20 +38,32 @@ export default function PackagesPage() {
 
   const fetchPackages = async () => {
     try {
+      setLoading(true);
+      setError(null);
       const params = new URLSearchParams();
       if (searchTerm) params.append('search', searchTerm);
       if (selectedCategory) params.append('category', selectedCategory);
+      
+      console.log('Fetching packages with params:', params.toString());
       
       const response = await fetch(`/api/admin/packages?${params}`, {
         credentials: 'include'
       });
       
+      console.log('Response status:', response.status);
+      
       if (response.ok) {
         const data = await response.json();
-        setPackages(data.packages);
+        console.log('Packages data:', data);
+        setPackages(data.packages || []);
+      } else {
+        const errorData = await response.json();
+        console.error('API Error:', errorData);
+        setError(errorData.error || 'ไม่สามารถโหลดข้อมูลได้');
       }
     } catch (error) {
       console.error('Error fetching packages:', error);
+      setError('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
     } finally {
       setLoading(false);
     }
@@ -72,9 +85,14 @@ export default function PackagesPage() {
       
       if (response.ok) {
         setPackages(packages.filter(pkg => pkg._id !== id));
+        alert('ลบแพ็คเกจทัวร์เรียบร้อยแล้ว');
+      } else {
+        const errorData = await response.json();
+        alert(errorData.error || 'เกิดข้อผิดพลาดในการลบแพ็คเกจทัวร์');
       }
     } catch (error) {
       console.error('Error deleting package:', error);
+      alert('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
     }
   };
 
@@ -96,6 +114,28 @@ export default function PackagesPage() {
           <Link href="/" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
             กลับหน้าแรก
           </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-600 mb-4">
+            <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">เกิดข้อผิดพลาด</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button
+            onClick={fetchPackages}
+            className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+          >
+            ลองใหม่
+          </button>
         </div>
       </div>
     );

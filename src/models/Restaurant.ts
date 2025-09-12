@@ -3,6 +3,7 @@ import mongoose, { Document, Schema } from 'mongoose';
 export interface IRestaurant extends Document {
   name: string;
   description: string;
+  category: string;
   location: {
     address: string;
     coordinates: {
@@ -11,46 +12,41 @@ export interface IRestaurant extends Document {
     };
   };
   images: string[];
-  cuisine: string[];
-  priceRange: 'budget' | 'moderate' | 'expensive';
   openingHours: {
-    monday: string;
-    tuesday: string;
-    wednesday: string;
-    thursday: string;
-    friday: string;
-    saturday: string;
-    sunday: string;
+    open: string;
+    close: string;
   };
-  contact: {
-    phone?: string;
-    email?: string;
-    website?: string;
-  };
-  facilities: string[];
-  isActive: boolean;
+  contactInfo: string;
+  priceRange: string;
+  features: string[];
+  tags: string[];
   rating: number;
-  reviewCount: number;
-  averagePrice: number;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-const RestaurantSchema: Schema = new Schema({
+const RestaurantSchema = new Schema({
   name: {
     type: String,
     required: true,
-    trim: true,
-    maxlength: 200
+    maxlength: 100
   },
   description: {
     type: String,
     required: true,
-    maxlength: 2000
+    maxlength: 1000
+  },
+  category: {
+    type: String,
+    required: true,
+    enum: ['thai', 'international', 'cafe', 'street_food', 'fine_dining', 'fast_food', 'seafood', 'other']
   },
   location: {
     address: {
       type: String,
       required: true,
-      maxlength: 500
+      maxlength: 200
     },
     coordinates: {
       lat: {
@@ -67,54 +63,50 @@ const RestaurantSchema: Schema = new Schema({
     type: String,
     required: true
   }],
-  cuisine: [{
+  openingHours: {
+    open: {
+      type: String,
+      required: true
+    },
+    close: {
+      type: String,
+      required: true
+    }
+  },
+  contactInfo: {
     type: String,
-    required: true,
-    maxlength: 50
-  }],
+    maxlength: 100
+  },
   priceRange: {
     type: String,
     required: true,
-    enum: ['budget', 'moderate', 'expensive']
+    enum: ['$', '$$', '$$$', '$$$$']
   },
-  openingHours: {
-    monday: { type: String, default: '08:00-22:00' },
-    tuesday: { type: String, default: '08:00-22:00' },
-    wednesday: { type: String, default: '08:00-22:00' },
-    thursday: { type: String, default: '08:00-22:00' },
-    friday: { type: String, default: '08:00-22:00' },
-    saturday: { type: String, default: '08:00-22:00' },
-    sunday: { type: String, default: '08:00-22:00' }
-  },
-  contact: {
-    phone: { type: String, maxlength: 20 },
-    email: { type: String, maxlength: 100 },
-    website: { type: String, maxlength: 200 }
-  },
-  facilities: [{
+  features: [{
     type: String,
-    maxlength: 100
+    maxlength: 50
   }],
-  isActive: {
-    type: Boolean,
-    default: true
-  },
+  tags: [{
+    type: String,
+    maxlength: 30
+  }],
   rating: {
     type: Number,
     default: 0,
     min: 0,
     max: 5
   },
-  reviewCount: {
-    type: Number,
-    default: 0
-  },
-  averagePrice: {
-    type: Number,
-    default: 0
+  isActive: {
+    type: Boolean,
+    default: true
   }
 }, {
   timestamps: true
 });
+
+// Index for better query performance
+RestaurantSchema.index({ category: 1, isActive: 1 });
+RestaurantSchema.index({ 'location.coordinates': '2dsphere' });
+RestaurantSchema.index({ rating: -1 });
 
 export default mongoose.models.Restaurant || mongoose.model<IRestaurant>('Restaurant', RestaurantSchema);

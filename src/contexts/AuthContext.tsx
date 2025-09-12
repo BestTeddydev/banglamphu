@@ -15,6 +15,7 @@ interface AuthContextType {
   loading: boolean;
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
+  refreshAuth: () => Promise<void>;
   isAdmin: boolean;
 }
 
@@ -62,6 +63,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (response.ok) {
         const data = await response.json();
         setUser(data.user);
+        // อัพเดทข้อมูล user ทันทีหลังจาก login สำเร็จ
+        await checkAuth();
         return true;
       }
       return false;
@@ -84,6 +87,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const refreshAuth = async () => {
+    await checkAuth();
+  };
+
   const isAdmin = user?.role === 'admin';
 
   return (
@@ -92,6 +99,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       loading,
       login,
       logout,
+      refreshAuth,
       isAdmin
     }}>
       {children}
