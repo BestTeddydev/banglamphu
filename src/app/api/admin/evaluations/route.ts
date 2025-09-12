@@ -75,11 +75,21 @@ export const GET = requireAdmin(async (request: NextRequest) => {
   }
 });
 
-export const DELETE = requireAdmin(async (request: NextRequest, { params }: { params: { id: string } }) => {
+export const DELETE = requireAdmin(async (request: NextRequest) => {
   try {
     await connectDB();
     
-    const evaluation = await Evaluation.findByIdAndDelete(params.id);
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+    
+    if (!id) {
+      return NextResponse.json(
+        { error: 'Evaluation ID is required' },
+        { status: 400 }
+      );
+    }
+    
+    const evaluation = await Evaluation.findByIdAndDelete(id);
     
     if (!evaluation) {
       return NextResponse.json(

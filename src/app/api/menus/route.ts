@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Menu from '@/models/Menu';
 
+export const dynamic = 'force-dynamic';
+
 export const GET = async (request: NextRequest) => {
   try {
     await connectDB();
