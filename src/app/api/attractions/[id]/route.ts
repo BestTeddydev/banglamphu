@@ -18,7 +18,17 @@ export async function GET(
       );
     }
     
-    return NextResponse.json(attraction);
+    // Convert coordinates from GeoJSON [lng, lat] to {lat, lng} for frontend
+    const attractionData = attraction.toObject();
+    if (attractionData.location && 
+        attractionData.location.coordinates && 
+        attractionData.location.coordinates.coordinates &&
+        Array.isArray(attractionData.location.coordinates.coordinates)) {
+      const [lng, lat] = attractionData.location.coordinates.coordinates;
+      attractionData.location.coordinates = { lat, lng };
+    }
+    
+    return NextResponse.json(attractionData);
   } catch (error) {
     console.error('Error fetching attraction:', error);
     return NextResponse.json(

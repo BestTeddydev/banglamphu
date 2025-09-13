@@ -31,10 +31,23 @@ export const GET = requireAdmin(async (request: NextRequest) => {
       .skip((page - 1) * limit)
       .limit(limit);
     
+    // Convert coordinates from GeoJSON [lng, lat] to {lat, lng} for frontend
+    const attractionsData = (attractions || []).map(attraction => {
+      const attractionData = attraction.toObject();
+      if (attractionData.location && 
+          attractionData.location.coordinates && 
+          attractionData.location.coordinates.coordinates &&
+          Array.isArray(attractionData.location.coordinates.coordinates)) {
+        const [lng, lat] = attractionData.location.coordinates.coordinates;
+        attractionData.location.coordinates = { lat, lng };
+      }
+      return attractionData;
+    });
+    
     const total = await Attraction.countDocuments(query);
     
     return NextResponse.json({
-      attractions,
+      attractions: attractionsData,
       pagination: {
         page,
         limit,
@@ -56,6 +69,15 @@ export const POST = requireAdmin(async (request: NextRequest) => {
     await connectDB();
     
     const body = await request.json();
+    
+    // Convert coordinates from {lat, lng} to GeoJSON format [lng, lat]
+    if (body.location && body.location.coordinates) {
+      const { lat, lng } = body.location.coordinates;
+      body.location.coordinates = {
+        type: 'Point',
+        coordinates: [lng, lat] // MongoDB expects [longitude, latitude]
+      };
+    }
     
     const attraction = new Attraction(body);
     await attraction.save();

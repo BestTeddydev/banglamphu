@@ -7,8 +7,8 @@ export interface IRestaurant extends Document {
   location: {
     address: string;
     coordinates: {
-      lat: number;
-      lng: number;
+      type: 'Point';
+      coordinates: [number, number]; // [lng, lat]
     };
   };
   images: string[];
@@ -49,13 +49,22 @@ const RestaurantSchema = new Schema({
       maxlength: 200
     },
     coordinates: {
-      lat: {
-        type: Number,
-        required: true
+      type: {
+        type: String,
+        enum: ['Point'],
+        default: 'Point'
       },
-      lng: {
-        type: Number,
-        required: true
+      coordinates: {
+        type: [Number],
+        required: true,
+        validate: {
+          validator: function(coords: number[]) {
+            return coords.length === 2 && 
+                   coords[0] >= -180 && coords[0] <= 180 && // lng
+                   coords[1] >= -90 && coords[1] <= 90;     // lat
+          },
+          message: 'Coordinates must be [longitude, latitude]'
+        }
       }
     }
   },

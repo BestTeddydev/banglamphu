@@ -6,8 +6,8 @@ export interface IAttraction extends Document {
   location: {
     address: string;
     coordinates: {
-      lat: number;
-      lng: number;
+      type: 'Point';
+      coordinates: [number, number]; // [lng, lat]
     };
   };
   images: string[];
@@ -44,13 +44,22 @@ const AttractionSchema: Schema = new Schema({
       maxlength: 500
     },
     coordinates: {
-      lat: {
-        type: Number,
-        required: true
+      type: {
+        type: String,
+        enum: ['Point'],
+        default: 'Point'
       },
-      lng: {
-        type: Number,
-        required: true
+      coordinates: {
+        type: [Number],
+        required: true,
+        validate: {
+          validator: function(coords: number[]) {
+            return coords.length === 2 && 
+                   coords[0] >= -180 && coords[0] <= 180 && // lng
+                   coords[1] >= -90 && coords[1] <= 90;     // lat
+          },
+          message: 'Coordinates must be [longitude, latitude]'
+        }
       }
     }
   },
@@ -100,5 +109,10 @@ const AttractionSchema: Schema = new Schema({
 }, {
   timestamps: true
 });
+
+// Index for better query performance
+AttractionSchema.index({ category: 1, isActive: 1 });
+AttractionSchema.index({ 'location.coordinates': '2dsphere' });
+AttractionSchema.index({ rating: -1 });
 
 export default mongoose.models.Attraction || mongoose.model<IAttraction>('Attraction', AttractionSchema);

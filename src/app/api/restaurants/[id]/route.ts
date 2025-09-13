@@ -18,7 +18,17 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
       );
     }
     
-    return NextResponse.json(restaurant);
+    // Convert coordinates from GeoJSON [lng, lat] to {lat, lng} for frontend
+    const restaurantData = restaurant.toObject();
+    if (restaurantData.location && 
+        restaurantData.location.coordinates && 
+        restaurantData.location.coordinates.coordinates &&
+        Array.isArray(restaurantData.location.coordinates.coordinates)) {
+      const [lng, lat] = restaurantData.location.coordinates.coordinates;
+      restaurantData.location.coordinates = { lat, lng };
+    }
+    
+    return NextResponse.json(restaurantData);
   } catch (error) {
     console.error('Get restaurant error:', error);
     return NextResponse.json(

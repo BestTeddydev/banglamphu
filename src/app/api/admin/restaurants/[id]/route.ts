@@ -17,7 +17,17 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
         );
       }
       
-      return NextResponse.json(restaurant);
+      // Convert coordinates from GeoJSON [lng, lat] to {lat, lng} for frontend
+      const restaurantData = restaurant.toObject();
+      if (restaurantData.location && 
+          restaurantData.location.coordinates && 
+          restaurantData.location.coordinates.coordinates &&
+          Array.isArray(restaurantData.location.coordinates.coordinates)) {
+        const [lng, lat] = restaurantData.location.coordinates.coordinates;
+        restaurantData.location.coordinates = { lat, lng };
+      }
+      
+      return NextResponse.json(restaurantData);
     } catch (error) {
       console.error('Get restaurant error:', error);
       return NextResponse.json(
@@ -34,6 +44,15 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       await connectDB();
       
       const body = await request.json();
+      
+      // Convert coordinates from {lat, lng} to GeoJSON format [lng, lat]
+      if (body.location && body.location.coordinates) {
+        const { lat, lng } = body.location.coordinates;
+        body.location.coordinates = {
+          type: 'Point',
+          coordinates: [lng, lat] // MongoDB expects [longitude, latitude]
+        };
+      }
       
       const restaurant = await Restaurant.findByIdAndUpdate(
         params.id,
