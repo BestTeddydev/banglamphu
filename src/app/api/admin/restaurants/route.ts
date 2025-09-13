@@ -27,15 +27,28 @@ export async function GET(request: NextRequest) {
         query.category = category;
       }
       
-      const restaurants = await Restaurant.find(query)
-        .sort({ createdAt: -1 })
-        .limit(limit * 1)
-        .skip((page - 1) * limit);
+    const restaurants = await Restaurant.find(query)
+      .sort({ createdAt: -1 })
+      .limit(limit * 1)
+      .skip((page - 1) * limit);
+    
+    // Convert coordinates from GeoJSON [lng, lat] to {lat, lng} for frontend
+    const restaurantsData = (restaurants || []).map(restaurant => {
+      const restaurantData = restaurant.toObject();
+      if (restaurantData.location && 
+          restaurantData.location.coordinates && 
+          restaurantData.location.coordinates.coordinates &&
+          Array.isArray(restaurantData.location.coordinates.coordinates)) {
+        const [lng, lat] = restaurantData.location.coordinates.coordinates;
+        restaurantData.location.coordinates = { lat, lng };
+      }
+      return restaurantData;
+    });
       
       const total = await Restaurant.countDocuments(query);
       
       return NextResponse.json({
-        restaurants,
+        restaurants: restaurantsData,
         totalPages: Math.ceil(total / limit),
         currentPage: page,
         total
@@ -56,6 +69,15 @@ export async function POST(request: NextRequest) {
       await connectDB();
       
       const body = await request.json();
+      
+      // Convert coordinates from {lat, lng} to GeoJSON format [lng, lat]
+      if (body.location && body.location.coordinates) {
+        const { lat, lng } = body.location.coordinates;
+        body.location.coordinates = {
+          type: 'Point',
+          coordinates: [lng, lat] // MongoDB expects [longitude, latitude]
+        };
+      }
       
       const restaurant = new Restaurant(body);
       await restaurant.save();

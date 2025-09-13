@@ -477,7 +477,7 @@ export default function CustomTourPage() {
                                 </button>
                                 {typeof attraction.location === 'object' && attraction.location?.coordinates && (
                                   <button
-                                    onClick={() => openGoogleMaps((attraction?.location as any).coordinates!, attraction?.name)}
+                                    onClick={() => openGoogleMaps((attraction.location as any).coordinates, attraction?.name)}
                                     className="p-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition-colors duration-200"
                                   >
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -567,7 +567,7 @@ export default function CustomTourPage() {
                                 </button>
                                 {typeof restaurant.location === 'object' && restaurant.location?.coordinates && (
                                   <button
-                                    onClick={() => openGoogleMaps((restaurant.location as any).coordinates!, restaurant?.name)}
+                                    onClick={() => openGoogleMaps((restaurant.location as any).coordinates, restaurant?.name)}
                                     className="p-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition-colors duration-200"
                                   >
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -669,7 +669,7 @@ export default function CustomTourPage() {
                                 </button>
                                 {typeof menu.restaurantId.location === 'object' && menu.restaurantId.location?.coordinates && (
                                   <button
-                                    onClick={() => openGoogleMaps((menu.restaurantId.location as any).coordinates!, menu.restaurantId?.name)}
+                                    onClick={() => openGoogleMaps((menu.restaurantId.location as any).coordinates, menu.restaurantId?.name)}
                                     className="p-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition-colors duration-200"
                                   >
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

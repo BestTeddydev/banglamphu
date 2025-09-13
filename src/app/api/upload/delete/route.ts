@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs/promises';
-import path from 'path';
+import { deleteFromVercelBlob } from '@/lib/vercel-blob';
+
+export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,15 +13,8 @@ export async function POST(request: NextRequest) {
 
     const deletePromises = urls.map(async (url: string) => {
       try {
-        // แปลง URL เป็น path ของไฟล์
-        const filename = path.basename(url);
-        const filePath = path.join(process.cwd(), 'public', 'uploads', filename);
-        
-        // ตรวจสอบว่าไฟล์มีอยู่จริง
-        await fs.access(filePath);
-        
-        // ลบไฟล์
-        await fs.unlink(filePath);
+        // Delete from Vercel Blob
+        await deleteFromVercelBlob(url);
         
         return { url, success: true };
       } catch (error) {

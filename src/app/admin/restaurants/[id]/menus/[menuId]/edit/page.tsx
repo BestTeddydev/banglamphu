@@ -80,6 +80,7 @@ export default function EditMenuPage() {
   });
   const [uploadingImages, setUploadingImages] = useState(false);
   const [pendingImages, setPendingImages] = useState<File[]>([]);
+  const [uploadError, setUploadError] = useState<string>('');
 
   // Fetch restaurant and menu data
   useEffect(() => {
@@ -484,6 +485,9 @@ export default function EditMenuPage() {
               <p className="text-sm text-gray-500 mt-1">
                 รองรับไฟล์ JPEG, PNG, WebP ขนาดไม่เกิน 5MB
               </p>
+              {uploadError && (
+                <p className="text-sm text-red-600 mt-1">{uploadError}</p>
+              )}
               {uploadingImages && (
                 <p className="text-sm text-blue-600 mt-1">กำลังอัพโหลดและบันทึกข้อมูล...</p>
               )}
@@ -510,6 +514,9 @@ export default function EditMenuPage() {
                       </button>
                       <div className="absolute bottom-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded">
                         รออัพโหลด
+                      </div>
+                      <div className="absolute bottom-2 right-2 bg-gray-800 text-white text-xs px-2 py-1 rounded">
+                        {(file.size / 1024 / 1024).toFixed(1)}MB
                       </div>
                     </div>
                   ))}

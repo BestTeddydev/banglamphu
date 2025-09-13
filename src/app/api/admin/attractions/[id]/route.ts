@@ -17,7 +17,17 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
         );
       }
       
-      return NextResponse.json(attraction);
+      // Convert coordinates from GeoJSON [lng, lat] to {lat, lng} for frontend
+      const attractionData = attraction.toObject();
+      if (attractionData.location && 
+          attractionData.location.coordinates && 
+          attractionData.location.coordinates.coordinates &&
+          Array.isArray(attractionData.location.coordinates.coordinates)) {
+        const [lng, lat] = attractionData.location.coordinates.coordinates;
+        attractionData.location.coordinates = { lat, lng };
+      }
+      
+      return NextResponse.json(attractionData);
     } catch (error) {
       console.error('Get attraction error:', error);
       return NextResponse.json(
@@ -34,6 +44,15 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       await connectDB();
       
       const body = await request.json();
+      
+      // Convert coordinates from {lat, lng} to GeoJSON format [lng, lat]
+      if (body.location && body.location.coordinates) {
+        const { lat, lng } = body.location.coordinates;
+        body.location.coordinates = {
+          type: 'Point',
+          coordinates: [lng, lat] // MongoDB expects [longitude, latitude]
+        };
+      }
       
       const attraction = await Attraction.findByIdAndUpdate(
         params.id,

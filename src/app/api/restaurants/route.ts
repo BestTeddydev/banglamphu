@@ -38,10 +38,23 @@ export const GET = async (request: NextRequest) => {
       .skip((page - 1) * limit)
       .limit(limit);
     
+    // Convert coordinates from GeoJSON [lng, lat] to {lat, lng} for frontend
+    const restaurantsData = (restaurants || []).map(restaurant => {
+      const restaurantData = restaurant.toObject();
+      if (restaurantData.location && 
+          restaurantData.location.coordinates && 
+          restaurantData.location.coordinates.coordinates &&
+          Array.isArray(restaurantData.location.coordinates.coordinates)) {
+        const [lng, lat] = restaurantData.location.coordinates.coordinates;
+        restaurantData.location.coordinates = { lat, lng };
+      }
+      return restaurantData;
+    });
+    
     const total = await Restaurant.countDocuments(query);
     
     return NextResponse.json({
-      restaurants,
+      restaurants: restaurantsData,
       pagination: {
         page,
         limit,

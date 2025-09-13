@@ -40,6 +40,7 @@ export default function EditStoryPage() {
   });
   const [uploadingImages, setUploadingImages] = useState(false);
   const [pendingImages, setPendingImages] = useState<File[]>([]);
+  const [uploadError, setUploadError] = useState<string>('');
   const [imagesToDelete, setImagesToDelete] = useState<string[]>([]);
 
   useEffect(() => {
