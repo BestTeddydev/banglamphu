@@ -32,6 +32,7 @@ export default function CreateAttractionPage() {
   });
   const [uploadingImages, setUploadingImages] = useState(false);
   const [pendingImages, setPendingImages] = useState<File[]>([]);
+  const [uploadError, setUploadError] = useState<string>('');
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -93,9 +94,42 @@ export default function CreateAttractionPage() {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
-    // เพิ่มไฟล์ใหม่เข้าไปในรายการรออัพโหลด
-    setPendingImages(prev => [...prev, ...Array.from(files)]);
-    e.target.value = '';
+    // Clear previous error
+    setUploadError('');
+
+    // Validate files
+    const validFiles: File[] = [];
+    const errors: string[] = [];
+
+    Array.from(files).forEach(file => {
+      // Check file type
+      if (!file.type.startsWith('image/')) {
+        errors.push(`${file.name}: ไม่ใช่ไฟล์รูปภาพ`);
+        return;
+      }
+
+      // Check file size (5MB limit)
+      if (file.size > 5 * 1024 * 1024) {
+        errors.push(`${file.name}: ไฟล์ใหญ่เกินไป (เกิน 5MB)`);
+        return;
+      }
+
+      validFiles.push(file);
+    });
+
+    if (errors.length > 0) {
+      setUploadError(errors.join(', '));
+    }
+
+    if (validFiles.length > 0) {
+      // เพิ่มไฟล์ใหม่เข้าไปในรายการรออัพโหลด
+      setPendingImages(prev => [...prev, ...validFiles]);
+    }
+    
+    // Reset input เพื่อให้สามารถเลือกไฟล์เดิมได้อีกครั้ง
+    setTimeout(() => {
+      e.target.value = '';
+    }, 100);
   };
 
   const removeImage = (index: number) => {
@@ -113,6 +147,7 @@ export default function CreateAttractionPage() {
     e.preventDefault();
     setLoading(true);
     setUploadingImages(true);
+    setUploadError('');
 
     try {
       // 1. อัพโหลดรูปภาพก่อน
@@ -128,7 +163,8 @@ export default function CreateAttractionPage() {
           });
 
           if (!response.ok) {
-            throw new Error('Failed to upload image');
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Failed to upload image');
           }
 
           const result = await response.json();
@@ -167,7 +203,9 @@ export default function CreateAttractionPage() {
       }
     } catch (error) {
       console.error('Error creating attraction:', error);
-      alert('เกิดข้อผิดพลาดในการสร้างแหล่งท่องเที่ยว');
+      const errorMessage = error instanceof Error ? error.message : 'เกิดข้อผิดพลาดในการสร้างแหล่งท่องเที่ยว';
+      setUploadError(errorMessage);
+      alert(errorMessage);
     } finally {
       setLoading(false);
       setUploadingImages(false);
@@ -381,6 +419,9 @@ export default function CreateAttractionPage() {
               <p className="text-sm text-gray-500 mt-1">
                 รองรับไฟล์ JPEG, PNG, WebP ขนาดไม่เกิน 5MB
               </p>
+              {uploadError && (
+                <p className="text-sm text-red-600 mt-1">{uploadError}</p>
+              )}
               {uploadingImages && (
                 <p className="text-sm text-blue-600 mt-1">กำลังอัพโหลดและบันทึกข้อมูล...</p>
               )}
@@ -407,6 +448,9 @@ export default function CreateAttractionPage() {
                       </button>
                       <div className="absolute bottom-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded">
                         รออัพโหลด
+                      </div>
+                      <div className="absolute bottom-2 right-2 bg-gray-800 text-white text-xs px-2 py-1 rounded">
+                        {(file.size / 1024 / 1024).toFixed(1)}MB
                       </div>
                     </div>
                   ))}

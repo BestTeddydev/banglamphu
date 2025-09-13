@@ -16,8 +16,8 @@ JWT_SECRET=your-super-secret-jwt-key-here
 # Google Maps API Key
 NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=your-google-maps-api-key-here
 
-# Upload Directory
-UPLOAD_DIR=./public/uploads
+# Vercel Blob Storage (สำหรับการอัปโหลดรูปภาพ)
+BLOB_READ_WRITE_TOKEN=your-vercel-blob-token
 ```
 
 ### 2. Deploy บน Vercel
@@ -59,7 +59,16 @@ UPLOAD_DIR=./public/uploads
 4. สร้าง API key
 5. ตั้งค่า restrictions (ถ้าต้องการ)
 
-### 5. ตรวจสอบการทำงาน
+### 5. ตั้งค่า Vercel Blob Storage
+
+1. ไปที่ Vercel Dashboard
+2. เลือกโปรเจคของคุณ
+3. ไปที่ Settings > Storage
+4. สร้าง Blob Storage ใหม่
+5. คัดลอก BLOB_READ_WRITE_TOKEN
+6. เพิ่ม token ใน environment variables
+
+### 6. ตรวจสอบการทำงาน
 
 หลังจาก deploy เสร็จแล้ว ให้ตรวจสอบ:
 
@@ -67,7 +76,8 @@ UPLOAD_DIR=./public/uploads
 - [ ] การ login ทำงานได้
 - [ ] API endpoints ตอบสนองได้
 - [ ] Google Maps แสดงได้
-- [ ] การอัปโหลดรูปภาพทำงานได้
+- [ ] การอัปโหลดรูปภาพทำงานได้ (Vercel Blob)
+- [ ] การลบรูปภาพทำงานได้
 
 ## Troubleshooting
 
@@ -99,8 +109,9 @@ UPLOAD_DIR=./public/uploads
    - ตรวจสอบ cookies settings
 
 3. **File Uploads:**
-   - ตรวจสอบ UPLOAD_DIR
-   - ตรวจสอบ file permissions
+   - ตรวจสอบ BLOB_READ_WRITE_TOKEN
+   - ตรวจสอบ Vercel Blob Storage settings
+   - ตรวจสอบ file size limits
 
 ## Performance Optimization
 
