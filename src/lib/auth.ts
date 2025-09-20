@@ -19,7 +19,7 @@ export function generateToken(user: AuthUser): string {
 export function verifyToken(token: string): AuthUser | null {
   try {
     return jwt.verify(token, JWT_SECRET) as AuthUser;
-  } catch (error) {
+  } catch (_error) {
     return null;
   }
 }
@@ -82,6 +82,18 @@ export function requireAuth(handler: (request: NextRequest, user: AuthUser) => P
     
     return handler(request, user);
   };
+}
+
+export async function verifyAdminToken(token: string): Promise<AuthUser | null> {
+  try {
+    const user = verifyToken(token);
+    if (!user || user.role !== 'admin') {
+      return null;
+    }
+    return user;
+  } catch (_error) {
+    return null;
+  }
 }
 
 export function requireAdmin(handler: (request: NextRequest, user: AuthUser) => Promise<Response>) {

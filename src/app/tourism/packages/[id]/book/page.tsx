@@ -39,12 +39,12 @@ export default function BookPackagePage({ params }: { params: { id: string } }) 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000));
-    
+
     setIsSubmitting(false);
-    
+
     // Navigate to payment page
     router.push(`/tourism/packages/${params.id}/payment?bookingId=12345`);
   };
@@ -65,11 +65,11 @@ export default function BookPackagePage({ params }: { params: { id: string } }) 
           <div className="lg:col-span-2">
             <div className="bg-white rounded-lg shadow-lg p-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-6">ข้อมูลการจอง</h2>
-              
+
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="name" className="block text-base font-semibold text-gray-800 mb-2">
                       ชื่อ-นามสกุล *
                     </label>
                     <input
@@ -79,13 +79,13 @@ export default function BookPackagePage({ params }: { params: { id: string } }) 
                       required
                       value={formData.name}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      className="w-full px-4 py-3 text-base text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                       placeholder="กรุณากรอกชื่อ-นามสกุล"
                     />
                   </div>
 
                   <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="email" className="block text-base font-semibold text-gray-800 mb-2">
                       อีเมล *
                     </label>
                     <input
@@ -95,7 +95,7 @@ export default function BookPackagePage({ params }: { params: { id: string } }) 
                       required
                       value={formData.email}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      className="w-full px-4 py-3 text-base text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                       placeholder="example@email.com"
                     />
                   </div>
@@ -103,7 +103,7 @@ export default function BookPackagePage({ params }: { params: { id: string } }) 
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="phone" className="block text-base font-semibold text-gray-800 mb-2">
                       เบอร์โทรศัพท์ *
                     </label>
                     <input
@@ -113,13 +113,13 @@ export default function BookPackagePage({ params }: { params: { id: string } }) 
                       required
                       value={formData.phone}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      className="w-full px-4 py-3 text-base text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                       placeholder="081-xxx-xxxx"
                     />
                   </div>
 
                   <div>
-                    <label htmlFor="participants" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="participants" className="block text-base font-semibold text-gray-800 mb-2">
                       จำนวนผู้เข้าร่วม *
                     </label>
                     <select
@@ -128,7 +128,7 @@ export default function BookPackagePage({ params }: { params: { id: string } }) 
                       required
                       value={formData.participants}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      className="w-full px-4 py-3 text-base text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                     >
                       {Array.from({ length: Math.min(10, packageData.maxParticipants - packageData.currentParticipants) }, (_, i) => (
                         <option key={i + 1} value={i + 1}>{i + 1} คน</option>
@@ -138,7 +138,7 @@ export default function BookPackagePage({ params }: { params: { id: string } }) 
                 </div>
 
                 <div>
-                  <label htmlFor="tourDate" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="tourDate" className="block text-base font-semibold text-gray-800 mb-2">
                     วันที่เดินทาง *
                   </label>
                   <input
@@ -149,12 +149,12 @@ export default function BookPackagePage({ params }: { params: { id: string } }) 
                     value={formData.tourDate}
                     onChange={handleInputChange}
                     min={new Date().toISOString().split('T')[0]}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    className="w-full px-4 py-3 text-base text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="notes" className="block text-base font-semibold text-gray-800 mb-2">
                     หมายเหตุเพิ่มเติม
                   </label>
                   <textarea
@@ -163,7 +163,7 @@ export default function BookPackagePage({ params }: { params: { id: string } }) 
                     rows={4}
                     value={formData.notes}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none"
+                    className="w-full px-4 py-3 text-base text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none"
                     placeholder="กรุณาระบุความต้องการพิเศษหรือข้อมูลเพิ่มเติม"
                   />
                 </div>
@@ -183,13 +183,13 @@ export default function BookPackagePage({ params }: { params: { id: string } }) 
           <div className="lg:col-span-1">
             <div className="bg-white rounded-lg shadow-lg p-6 sticky top-8">
               <h3 className="text-xl font-bold text-gray-900 mb-4">สรุปการจอง</h3>
-              
+
               <div className="space-y-4 mb-6">
                 <div>
                   <h4 className="font-semibold text-gray-900">{packageData.name}</h4>
                   <p className="text-sm text-gray-600">ระยะเวลา: {packageData.duration} ชั่วโมง</p>
                 </div>
-                
+
                 <div className="border-t pt-4">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-gray-600">ราคาต่อคน</span>

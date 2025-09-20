@@ -2,59 +2,63 @@ import mongoose, { Document, Schema } from 'mongoose';
 
 export interface INews extends Document {
   title: string;
-  content: string;
-  author: string;
-  publishedAt: Date;
-  imageUrl?: string;
-  category: 'general' | 'event' | 'announcement' | 'community';
-  isPublished: boolean;
-  views: number;
-  tags: string[];
+  description?: string;
+  link: string;
+  source?: string;
+  category?: string;
+  isActive: boolean;
+  order: number;
+  publishedAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-const NewsSchema: Schema = new Schema({
+const NewsSchema = new Schema<INews>({
   title: {
     type: String,
     required: true,
     trim: true,
     maxlength: 200
   },
-  content: {
+  description: {
     type: String,
-    required: true
+    trim: true,
+    maxlength: 500
   },
-  author: {
+  link: {
     type: String,
     required: true,
     trim: true
   },
-  publishedAt: {
-    type: Date,
-    default: Date.now
-  },
-  imageUrl: {
+  source: {
     type: String,
-    trim: true
+    trim: true,
+    maxlength: 100
   },
   category: {
     type: String,
-    enum: ['general', 'event', 'announcement', 'community'],
-    default: 'general'
+    trim: true,
+    maxlength: 50
   },
-  isPublished: {
+  isActive: {
     type: Boolean,
     default: true
   },
-  views: {
+  order: {
     type: Number,
     default: 0
   },
-  tags: [{
-    type: String,
-    trim: true
-  }]
+  publishedAt: {
+    type: Date,
+    default: Date.now
+  }
 }, {
   timestamps: true
 });
+
+// Index for better query performance
+NewsSchema.index({ isActive: 1, order: 1 });
+NewsSchema.index({ publishedAt: -1 });
+NewsSchema.index({ category: 1 });
 
 export default mongoose.models.News || mongoose.model<INews>('News', NewsSchema);
