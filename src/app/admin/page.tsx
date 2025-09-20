@@ -16,12 +16,12 @@ export default function AdminPage() {
         const response = await fetch('/api/auth/check-admin', {
           credentials: 'include'
         });
-        
+
         if (!response.ok) {
           router.push('/');
           return;
         }
-        
+
         setLoading(false);
       } catch (error) {
         console.error('Admin check failed:', error);
@@ -73,7 +73,7 @@ export default function AdminPage() {
             </div>
             <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-600">ยินดีต้อนรับ, {user?.name}</span>
-              <button 
+              <button
                 onClick={logout}
                 className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-700"
               >
@@ -283,16 +283,126 @@ export default function AdminPage() {
                   </svg>
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">นิทาน</h3>
-                  <p className="text-sm text-gray-600">จัดการนิทานสำหรับเด็ก</p>
+                  <h3 className="text-lg font-semibold text-gray-900">ประวัติศาสตร์</h3>
+                  <p className="text-sm text-gray-600">จัดการเรื่องเล่าประวัติศาสตร์</p>
                 </div>
               </div>
               <div className="space-y-2">
                 <Link href="/admin/stories" className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded">
-                  ดูรายการนิทานทั้งหมด
+                  ดูรายการประวัติศาสตร์ทั้งหมด
                 </Link>
                 <Link href="/admin/stories/create" className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded">
-                  สร้างนิทานใหม่
+                  สร้างเรื่องประวัติศาสตร์ใหม่
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* Banners Management */}
+          <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+            <div className="p-6">
+              <div className="flex items-center mb-4">
+                <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center mr-4">
+                  <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">แบนเนอร์</h3>
+                  <p className="text-sm text-gray-600">จัดการแบนเนอร์หน้าแรก</p>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Link href="/admin/banners" className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded">
+                  จัดการแบนเนอร์
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* News Management */}
+          <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+            <div className="p-6">
+              <div className="flex items-center mb-4">
+                <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mr-4">
+                  <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">ข่าวสาร</h3>
+                  <p className="text-sm text-gray-600">จัดการข่าวสารและบทความ</p>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Link href="/admin/news" className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded">
+                  จัดการข่าวสาร
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* Research Management */}
+          <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+            <div className="p-6">
+              <div className="flex items-center mb-4">
+                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mr-4">
+                  <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">ผลงานวิจัย</h3>
+                  <p className="text-sm text-gray-600">จัดการผลงานวิจัยและเอกสารวิชาการ</p>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Link href="/admin/research" className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded">
+                  จัดการผลงานวิจัย
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* Highlights Management */}
+          <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+            <div className="p-6">
+              <div className="flex items-center mb-4">
+                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mr-4">
+                  <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">ไฮไลท์</h3>
+                  <p className="text-sm text-gray-600">จัดการคลิปไฮไลท์และวิดีโอ</p>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Link href="/admin/highlights" className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded">
+                  จัดการไฮไลท์
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* Souvenirs Management */}
+          <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+            <div className="p-6">
+              <div className="flex items-center mb-4">
+                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
+                  <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">สินค้าที่ระลึก</h3>
+                  <p className="text-sm text-gray-600">จัดการสินค้าที่ระลึกและของฝาก</p>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Link href="/admin/souvenirs" className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded">
+                  จัดการสินค้าที่ระลึก
                 </Link>
               </div>
             </div>

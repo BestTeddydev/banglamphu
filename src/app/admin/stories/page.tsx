@@ -47,7 +47,7 @@ export default function AdminStoriesPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('คุณแน่ใจหรือไม่ที่จะลบนิทานนี้?')) return;
+    if (!confirm('คุณแน่ใจหรือไม่ที่จะลบเรื่องประวัติศาสตร์นี้?')) return;
 
     try {
       const response = await fetch(`/api/admin/stories/${id}`, {
@@ -58,11 +58,11 @@ export default function AdminStoriesPage() {
       if (response.ok) {
         fetchStories();
       } else {
-        alert('เกิดข้อผิดพลาดในการลบนิทาน');
+        alert('เกิดข้อผิดพลาดในการลบเรื่องประวัติศาสตร์');
       }
     } catch (error) {
       console.error('Error deleting story:', error);
-      alert('เกิดข้อผิดพลาดในการลบนิทาน');
+      alert('เกิดข้อผิดพลาดในการลบเรื่องประวัติศาสตร์');
     }
   };
 
@@ -148,18 +148,18 @@ export default function AdminStoriesPage() {
           <nav className="flex items-center space-x-2 text-sm text-gray-600 mb-4">
             <Link href="/admin" className="hover:text-green-600">แอดมิน</Link>
             <span>›</span>
-            <span className="text-gray-900">นิทาน</span>
+            <span className="text-gray-900">ประวัติศาสตร์</span>
           </nav>
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">จัดการนิทาน</h1>
-              <p className="text-gray-600">สร้างและจัดการนิทานสำหรับเด็ก</p>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">จัดการประวัติศาสตร์</h1>
+              <p className="text-gray-600">สร้างและจัดการเรื่องเล่าประวัติศาสตร์</p>
             </div>
             <Link
               href="/admin/stories/create"
               className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 font-medium shadow-sm hover:shadow-md transition-all duration-200"
             >
-              สร้างนิทานใหม่
+              สร้างเรื่องประวัติศาสตร์ใหม่
             </Link>
           </div>
         </div>
@@ -168,7 +168,7 @@ export default function AdminStoriesPage() {
         <div className="mb-6">
           <input
             type="text"
-            placeholder="ค้นหานิทาน..."
+            placeholder="ค้นหาประวัติศาสตร์..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full max-w-md px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-green-500 focus:border-green-500 text-gray-900 font-medium placeholder-gray-500 shadow-sm hover:shadow-md focus:shadow-md"
@@ -183,13 +183,13 @@ export default function AdminStoriesPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
               </svg>
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">ยังไม่มีนิทาน</h3>
-            <p className="text-gray-600 mb-4">เริ่มสร้างนิทานแรกของคุณ</p>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">ยังไม่มีเรื่องประวัติศาสตร์</h3>
+            <p className="text-gray-600 mb-4">เริ่มสร้างเรื่องประวัติศาสตร์แรกของคุณ</p>
             <Link
               href="/admin/stories/create"
               className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 font-medium"
             >
-              สร้างนิทานใหม่
+              สร้างเรื่องประวัติศาสตร์ใหม่
             </Link>
           </div>
         ) : (
@@ -208,11 +208,10 @@ export default function AdminStoriesPage() {
                     <h3 className="text-lg font-semibold text-gray-900 line-clamp-2">
                       {story.title}
                     </h3>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      story.isPublished 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-yellow-100 text-yellow-800'
-                    }`}>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${story.isPublished
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-yellow-100 text-yellow-800'
+                      }`}>
                       {story.isPublished ? 'เผยแพร่' : 'ร่าง'}
                     </span>
                   </div>
@@ -232,11 +231,10 @@ export default function AdminStoriesPage() {
                     </Link>
                     <button
                       onClick={() => togglePublish(story._id, story.isPublished)}
-                      className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors duration-200 ${
-                        story.isPublished
-                          ? 'bg-yellow-600 text-white hover:bg-yellow-700'
-                          : 'bg-green-600 text-white hover:bg-green-700'
-                      }`}
+                      className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors duration-200 ${story.isPublished
+                        ? 'bg-yellow-600 text-white hover:bg-yellow-700'
+                        : 'bg-green-600 text-white hover:bg-green-700'
+                        }`}
                     >
                       {story.isPublished ? 'ยกเลิกเผยแพร่' : 'เผยแพร่'}
                     </button>

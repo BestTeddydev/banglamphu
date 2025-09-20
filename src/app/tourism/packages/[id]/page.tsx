@@ -34,7 +34,7 @@ interface Package {
 export default function PackageDetailPage({ params }: { params: { id: string } }) {
   const { user } = useAuth();
   const router = useRouter();
-  
+
   const [packageData, setPackageData] = useState<Package | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -60,9 +60,9 @@ export default function PackageDetailPage({ params }: { params: { id: string } }
     try {
       setLoading(true);
       setError(null);
-      
+
       const response = await fetch(`/api/packages/${params.id}`);
-      
+
       if (response.ok) {
         const data = await response.json();
         setPackageData(data.package);
@@ -80,7 +80,7 @@ export default function PackageDetailPage({ params }: { params: { id: string } }
 
   const handleBookingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!user) {
       alert('กรุณาเข้าสู่ระบบก่อนจองทัวร์');
       return;
@@ -234,7 +234,7 @@ export default function PackageDetailPage({ params }: { params: { id: string } }
                       fill="currentColor"
                       viewBox="0 0 20 20"
                     >
-                      <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/>
+                      <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
                     </svg>
                   ))}
                 </div>
@@ -370,11 +370,11 @@ export default function PackageDetailPage({ params }: { params: { id: string } }
                       value={bookingData.tourDate}
                       onChange={(e) => setBookingData(prev => ({ ...prev, tourDate: e.target.value }))}
                       required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-green-500 focus:border-green-500"
+                      className="w-full px-3 py-2 border text-gray-900 border-gray-300 rounded-lg focus:outline-none focus:ring-green-500 focus:border-green-500"
                     >
                       <option value="">เลือกวันที่</option>
                       {packageData.tourDates.map((tourDate, index) => {
-                        const dateStr = tourDate.date instanceof Date 
+                        const dateStr = tourDate.date instanceof Date
                           ? tourDate.date.toISOString().split('T')[0]
                           : new Date(tourDate.date).toISOString().split('T')[0];
                         return (
@@ -397,7 +397,7 @@ export default function PackageDetailPage({ params }: { params: { id: string } }
                       required
                       min="1"
                       max={packageData.maxParticipants}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-green-500 focus:border-green-500"
+                      className="w-full px-3 py-2 border text-gray-900 border-gray-300 rounded-lg focus:outline-none focus:ring-green-500 focus:border-green-500"
                     />
                   </div>
 
@@ -408,12 +408,12 @@ export default function PackageDetailPage({ params }: { params: { id: string } }
                     <input
                       type="text"
                       value={bookingData.contactInfo.name}
-                      onChange={(e) => setBookingData(prev => ({ 
-                        ...prev, 
+                      onChange={(e) => setBookingData(prev => ({
+                        ...prev,
                         contactInfo: { ...prev.contactInfo, name: e.target.value }
                       }))}
                       required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-green-500 focus:border-green-500"
+                      className="w-full px-3 py-2 text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-green-500 focus:border-green-500"
                     />
                   </div>
 
@@ -424,12 +424,12 @@ export default function PackageDetailPage({ params }: { params: { id: string } }
                     <input
                       type="email"
                       value={bookingData.contactInfo.email}
-                      onChange={(e) => setBookingData(prev => ({ 
-                        ...prev, 
+                      onChange={(e) => setBookingData(prev => ({
+                        ...prev,
                         contactInfo: { ...prev.contactInfo, email: e.target.value }
                       }))}
                       required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-green-500 focus:border-green-500"
+                      className="w-full px-3 py-2 text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-green-500 focus:border-green-500"
                     />
                   </div>
 
@@ -440,12 +440,12 @@ export default function PackageDetailPage({ params }: { params: { id: string } }
                     <input
                       type="tel"
                       value={bookingData.contactInfo.phone}
-                      onChange={(e) => setBookingData(prev => ({ 
-                        ...prev, 
+                      onChange={(e) => setBookingData(prev => ({
+                        ...prev,
                         contactInfo: { ...prev.contactInfo, phone: e.target.value }
                       }))}
                       required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-green-500 focus:border-green-500"
+                      className="w-full px-3 py-2 text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-green-500 focus:border-green-500"
                     />
                   </div>
 
@@ -456,26 +456,26 @@ export default function PackageDetailPage({ params }: { params: { id: string } }
                     <input
                       type="tel"
                       value={bookingData.contactInfo.emergencyContact}
-                      onChange={(e) => setBookingData(prev => ({ 
-                        ...prev, 
+                      onChange={(e) => setBookingData(prev => ({
+                        ...prev,
                         contactInfo: { ...prev.contactInfo, emergencyContact: e.target.value }
                       }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-green-500 focus:border-green-500"
+                      className="w-full px-3 py-2 text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-green-500 focus:border-green-500"
                     />
                   </div>
 
                   <div>
                     <label className="block text-sm font-semibold text-gray-800 mb-2">
-                      ข้อความพิเศษ
+                      แพ้อาหาร(ถ้ามี)
                     </label>
                     <textarea
                       value={bookingData.contactInfo.specialRequests}
-                      onChange={(e) => setBookingData(prev => ({ 
-                        ...prev, 
+                      onChange={(e) => setBookingData(prev => ({
+                        ...prev,
                         contactInfo: { ...prev.contactInfo, specialRequests: e.target.value }
                       }))}
                       rows={3}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-green-500 focus:border-green-500"
+                      className="w-full px-3 py-2 text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-green-500 focus:border-green-500"
                     />
                   </div>
 

@@ -15,7 +15,7 @@ interface StoryPage {
 export default function CreateStoryPage() {
   const { isAdmin } = useAuth();
   const router = useRouter();
-  
+
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
@@ -39,7 +39,7 @@ export default function CreateStoryPage() {
     if (!files || files.length === 0) return;
 
     setUploadingImages(true);
-    
+
     try {
       const file = files[0];
       const formData = new FormData();
@@ -55,7 +55,7 @@ export default function CreateStoryPage() {
       }
 
       const result = await response.json();
-      
+
       if (type === 'cover') {
         setFormData(prev => ({
           ...prev,
@@ -64,7 +64,7 @@ export default function CreateStoryPage() {
       } else if (type === 'page' && pageIndex !== undefined) {
         setFormData(prev => ({
           ...prev,
-          pages: prev.pages.map((page, index) => 
+          pages: prev.pages.map((page, index) =>
             index === pageIndex ? { ...page, image: result.url } : page
           )
         }));
@@ -104,7 +104,7 @@ export default function CreateStoryPage() {
   const updatePage = (index: number, field: keyof StoryPage, value: string) => {
     setFormData(prev => ({
       ...prev,
-      pages: prev.pages.map((page, i) => 
+      pages: prev.pages.map((page, i) =>
         i === index ? { ...page, [field]: value } : page
       )
     }));
@@ -117,12 +117,12 @@ export default function CreateStoryPage() {
     setFormData(prev => {
       const newPages = [...prev.pages];
       [newPages[index], newPages[newIndex]] = [newPages[newIndex], newPages[index]];
-      
+
       // Update page numbers
       newPages.forEach((page, i) => {
         page.pageNumber = i + 1;
       });
-      
+
       return {
         ...prev,
         pages: newPages
@@ -147,11 +147,11 @@ export default function CreateStoryPage() {
       if (response.ok) {
         router.push('/admin/stories');
       } else {
-        alert('เกิดข้อผิดพลาดในการสร้างนิทาน');
+        alert('เกิดข้อผิดพลาดในการสร้างเรื่องประวัติศาสตร์');
       }
     } catch (error) {
       console.error('Error creating story:', error);
-      alert('เกิดข้อผิดพลาดในการสร้างนิทาน');
+      alert('เกิดข้อผิดพลาดในการสร้างเรื่องประวัติศาสตร์');
     } finally {
       setLoading(false);
     }
@@ -179,12 +179,12 @@ export default function CreateStoryPage() {
           <nav className="flex items-center space-x-2 text-sm text-gray-600 mb-4">
             <Link href="/admin" className="hover:text-green-600">แอดมิน</Link>
             <span>›</span>
-            <Link href="/admin/stories" className="hover:text-green-600">นิทาน</Link>
+            <Link href="/admin/stories" className="hover:text-green-600">ประวัติศาสตร์</Link>
             <span>›</span>
             <span className="text-gray-900">สร้างใหม่</span>
           </nav>
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">สร้างนิทานใหม่</h1>
-          <p className="text-gray-600">สร้างนิทานสำหรับเด็กด้วยรูปภาพและข้อความ</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-4">สร้างเรื่องประวัติศาสตร์ใหม่</h1>
+          <p className="text-gray-600">สร้างเรื่องเล่าประวัติศาสตร์ด้วยรูปภาพและข้อความ</p>
         </div>
 
         {/* Form */}
@@ -193,11 +193,11 @@ export default function CreateStoryPage() {
           <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200">
             <div className="p-6">
               <h2 className="text-xl font-bold text-gray-900 mb-6">ข้อมูลพื้นฐาน</h2>
-              
+
               <div className="space-y-6">
                 <div>
                   <label className="block text-sm font-semibold text-gray-800 mb-3">
-                    ชื่อนิทาน *
+                    ชื่อเรื่องประวัติศาสตร์ *
                   </label>
                   <input
                     type="text"
@@ -206,7 +206,7 @@ export default function CreateStoryPage() {
                     onChange={handleInputChange}
                     required
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-green-500 focus:border-green-500 transition-colors duration-200 text-gray-900 font-medium placeholder-gray-500 shadow-sm hover:shadow-md focus:shadow-md"
-                    placeholder="ชื่อนิทาน"
+                    placeholder="ชื่อเรื่องประวัติศาสตร์"
                   />
                 </div>
 
@@ -221,7 +221,7 @@ export default function CreateStoryPage() {
                     required
                     rows={3}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-green-500 focus:border-green-500 transition-colors duration-200 text-gray-900 font-medium placeholder-gray-500 resize-vertical shadow-sm hover:shadow-md focus:shadow-md"
-                    placeholder="คำอธิบายสั้นๆ เกี่ยวกับนิทาน"
+                    placeholder="คำอธิบายสั้นๆ เกี่ยวกับเรื่องประวัติศาสตร์"
                   />
                 </div>
 
@@ -254,7 +254,7 @@ export default function CreateStoryPage() {
           <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200">
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold text-gray-900">หน้าของนิทาน</h2>
+                <h2 className="text-xl font-bold text-gray-900">หน้าของเรื่องประวัติศาสตร์</h2>
                 <button
                   type="button"
                   onClick={addPage}
@@ -266,7 +266,7 @@ export default function CreateStoryPage() {
 
               {formData.pages.length === 0 ? (
                 <div className="text-center py-8 text-gray-500">
-                  <p>ยังไม่มีหน้าในนิทาน</p>
+                  <p>ยังไม่มีหน้าในเรื่องประวัติศาสตร์</p>
                   <p className="text-sm">คลิก "เพิ่มหน้า" เพื่อเริ่มสร้าง</p>
                 </div>
               ) : (
@@ -375,11 +375,11 @@ export default function CreateStoryPage() {
                   className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
                 />
                 <label htmlFor="isPublished" className="ml-2 text-sm font-semibold text-gray-800">
-                  เผยแพร่นิทานทันที
+                  เผยแพร่เรื่องประวัติศาสตร์ทันที
                 </label>
               </div>
               <p className="text-sm text-gray-600 mt-1">
-                หากไม่เลือก นิทานจะถูกเก็บเป็นร่าง
+                หากไม่เลือก เรื่องประวัติศาสตร์จะถูกเก็บเป็นร่าง
               </p>
             </div>
           </div>
@@ -397,7 +397,7 @@ export default function CreateStoryPage() {
               disabled={loading || formData.pages.length === 0}
               className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-green-400 disabled:cursor-not-allowed font-medium"
             >
-              {loading ? 'กำลังสร้าง...' : 'สร้างนิทาน'}
+              {loading ? 'กำลังสร้าง...' : 'สร้างเรื่องประวัติศาสตร์'}
             </button>
           </div>
         </form>

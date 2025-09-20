@@ -61,18 +61,18 @@ export default function StoryReaderPage() {
       // Check if we're in the story reader area
       const target = e.target as HTMLElement;
       const storyReader = target.closest('[data-story-reader]');
-      
+
       if (!storyReader) return;
-      
+
       // Prevent default scrolling behavior only in story reader
       e.preventDefault();
-      
+
       // Throttle scroll events to prevent too fast page changes
       const now = Date.now();
       if (now - lastScrollTime < 500) return; // 500ms throttle
-      
+
       setLastScrollTime(now);
-      
+
       // Determine scroll direction
       if (e.deltaY > 0) {
         // Scroll down - go to next page
@@ -85,7 +85,7 @@ export default function StoryReaderPage() {
 
     // Add wheel event listener with passive: false to allow preventDefault
     window.addEventListener('wheel', handleWheel, { passive: false });
-    
+
     return () => {
       window.removeEventListener('wheel', handleWheel);
     };
@@ -97,7 +97,7 @@ export default function StoryReaderPage() {
       const response = await fetch(`/api/stories/${id}`);
       if (!response.ok) {
         if (response.status === 404) {
-          setError('ไม่พบนิทานนี้');
+          setError('ไม่พบเรื่องประวัติศาสตร์นี้');
         } else {
           throw new Error('Failed to fetch story');
         }
@@ -141,7 +141,7 @@ export default function StoryReaderPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">กำลังโหลดนิทาน...</p>
+          <p className="text-gray-600">กำลังโหลดประวัติศาสตร์...</p>
         </div>
       </div>
     );
@@ -159,7 +159,7 @@ export default function StoryReaderPage() {
           <h2 className="text-2xl font-bold text-gray-900 mb-2">เกิดข้อผิดพลาด</h2>
           <p className="text-gray-600 mb-4">{error}</p>
           <Link href="/tourism/stories" className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
-            กลับไปยังรายการนิทาน
+            กลับไปยังรายการประวัติศาสตร์
           </Link>
         </div>
       </div>
@@ -170,10 +170,10 @@ export default function StoryReaderPage() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">ไม่พบนิทาน</h2>
-          <p className="text-gray-600 mb-4">นิทานที่คุณค้นหาอาจไม่มีอยู่</p>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">ไม่พบเรื่องประวัติศาสตร์</h2>
+          <p className="text-gray-600 mb-4">เรื่องประวัติศาสตร์ที่คุณค้นหาอาจไม่มีอยู่</p>
           <Link href="/tourism/stories" className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
-            กลับไปยังรายการนิทาน
+            กลับไปยังรายการประวัติศาสตร์
           </Link>
         </div>
       </div>
@@ -191,11 +191,11 @@ export default function StoryReaderPage() {
             <nav className="flex items-center space-x-2 text-sm text-gray-600 mb-4">
               <Link href="/tourism" className="hover:text-green-600">ท่องเที่ยว</Link>
               <span>›</span>
-              <Link href="/tourism/stories" className="hover:text-green-600">นิทาน</Link>
+              <Link href="/tourism/stories" className="hover:text-green-600">ประวัติศาสตร์</Link>
               <span>›</span>
               <span className="text-gray-900">{story.title}</span>
             </nav>
-            
+
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">{story.title}</h1>
@@ -212,7 +212,7 @@ export default function StoryReaderPage() {
         )}
 
         {/* Story Reader */}
-        <div 
+        <div
           data-story-reader
           className={`${isFullscreen ? 'flex-1 flex flex-col bg-black' : 'bg-white rounded-lg shadow-lg overflow-hidden'}`}
         >
@@ -222,11 +222,10 @@ export default function StoryReaderPage() {
               <button
                 onClick={prevPage}
                 disabled={currentPage === 0}
-                className={`px-6 py-3 rounded-lg hover:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed font-medium transition-all duration-200 text-lg ${
-                  isFullscreen 
-                    ? 'bg-white text-black hover:bg-gray-200' 
+                className={`px-6 py-3 rounded-lg hover:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed font-medium transition-all duration-200 text-lg ${isFullscreen
+                    ? 'bg-white text-black hover:bg-gray-200'
                     : 'bg-blue-600 text-white hover:bg-blue-700 disabled:bg-gray-400'
-                }`}
+                  }`}
               >
                 ← ก่อนหน้า
               </button>
@@ -236,23 +235,21 @@ export default function StoryReaderPage() {
               <button
                 onClick={nextPage}
                 disabled={currentPage === story.pages.length - 1}
-                className={`px-6 py-3 rounded-lg hover:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed font-medium transition-all duration-200 text-lg ${
-                  isFullscreen 
-                    ? 'bg-white text-black hover:bg-gray-200' 
+                className={`px-6 py-3 rounded-lg hover:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed font-medium transition-all duration-200 text-lg ${isFullscreen
+                    ? 'bg-white text-black hover:bg-gray-200'
                     : 'bg-blue-600 text-white hover:bg-blue-700 disabled:bg-gray-400'
-                }`}
+                  }`}
               >
                 ถัดไป →
               </button>
             </div>
-            
+
             <button
               onClick={toggleFullscreen}
-              className={`p-2 rounded-lg hover:bg-opacity-20 transition-colors duration-200 ${
-                isFullscreen 
-                  ? 'text-white hover:bg-white' 
+              className={`p-2 rounded-lg hover:bg-opacity-20 transition-colors duration-200 ${isFullscreen
+                  ? 'text-white hover:bg-white'
                   : 'text-gray-600 hover:text-gray-800 hover:bg-gray-200'
-              }`}
+                }`}
               title={isFullscreen ? "ปิดแบบเต็มหน้าจอ (F หรือ ESC)" : "เปิดแบบเต็มหน้าจอ (F)"}
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -269,20 +266,18 @@ export default function StoryReaderPage() {
           <div className={`${isFullscreen ? 'flex-1 flex items-center justify-center p-4' : 'p-6'}`}>
             <div className={`${isFullscreen ? 'w-full h-full flex items-center justify-center' : 'max-w-2xl mx-auto'}`}>
               {/* Image Only - Vertical Layout */}
-              <div className={`flex justify-center transition-all duration-300 ${
-                isScrolling ? 'opacity-70 scale-95' : 'opacity-100 scale-100'
-              }`}>
+              <div className={`flex justify-center transition-all duration-300 ${isScrolling ? 'opacity-70 scale-95' : 'opacity-100 scale-100'
+                }`}>
                 <img
                   src={currentPageData.image}
                   alt={currentPageData.title || `หน้า ${currentPage + 1}`}
-                  className={`w-full h-auto object-contain transition-all duration-300 ${
-                    isFullscreen 
-                      ? 'max-h-full max-w-full' 
+                  className={`w-full h-auto object-contain transition-all duration-300 ${isFullscreen
+                      ? 'max-h-full max-w-full'
                       : 'max-w-lg rounded-lg shadow-lg'
-                  }`}
+                    }`}
                 />
               </div>
-              
+
               {/* Scroll Indicator */}
               {isScrolling && (
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -302,11 +297,10 @@ export default function StoryReaderPage() {
                   <button
                     key={index}
                     onClick={() => goToPage(index)}
-                    className={`flex-shrink-0 w-16 h-20 rounded-lg overflow-hidden border-2 transition-colors duration-200 ${
-                      index === currentPage
+                    className={`flex-shrink-0 w-16 h-20 rounded-lg overflow-hidden border-2 transition-colors duration-200 ${index === currentPage
                         ? 'border-green-500 ring-2 ring-green-200'
                         : 'border-gray-300 hover:border-gray-400'
-                    }`}
+                      }`}
                   >
                     <img
                       src={page.image}
@@ -328,7 +322,7 @@ export default function StoryReaderPage() {
                 href="/tourism/stories"
                 className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-colors duration-200"
               >
-                กลับไปยังรายการนิทาน
+                กลับไปยังรายการประวัติศาสตร์
               </Link>
               <button
                 onClick={() => setCurrentPage(0)}
@@ -337,7 +331,7 @@ export default function StoryReaderPage() {
                 เริ่มต้นใหม่
               </button>
             </div>
-            
+
             {/* Keyboard Shortcuts Help */}
             <div className="text-center text-sm text-gray-500">
               <p>💡 เคล็ดลับ: ใช้ลูกศรซ้าย/ขวา, scroll mouse หรือ F เพื่อเปิดเต็มหน้าจอ</p>
