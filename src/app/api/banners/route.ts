@@ -12,13 +12,19 @@ export async function GET(request: NextRequest) {
     // ดึงแบนเนอร์ที่ใช้งานได้และอยู่ในช่วงเวลาที่กำหนด
     const banners = await Banner.find({
       isActive: true,
-      $or: [
-        { startDate: { $exists: false } },
-        { startDate: { $lte: now } }
-      ],
-      $or: [
-        { endDate: { $exists: false } },
-        { endDate: { $gte: now } }
+      $and: [
+        {
+          $or: [
+            { startDate: { $exists: false } },
+            { startDate: { $lte: now } }
+          ]
+        },
+        {
+          $or: [
+            { endDate: { $exists: false } },
+            { endDate: { $gte: now } }
+          ]
+        }
       ]
     })
     .sort({ order: 1, createdAt: -1 })

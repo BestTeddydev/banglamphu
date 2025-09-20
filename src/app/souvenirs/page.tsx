@@ -42,7 +42,7 @@ export default function SouvenirsPage() {
         setSouvenirs(data.data);
 
         // Extract unique categories
-        const uniqueCategories = [...new Set(data.data.map((s: Souvenir) => s.category).filter(Boolean))];
+        const uniqueCategories = [...new Set(data.data.map((s: Souvenir) => s.category).filter(Boolean))] as string[];
         setCategories(uniqueCategories);
       }
     } catch (error) {
@@ -92,8 +92,8 @@ export default function SouvenirsPage() {
             <button
               onClick={() => handleCategoryChange('')}
               className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${selectedCategory === ''
-                  ? 'bg-green-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                ? 'bg-green-600 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
             >
               ทั้งหมด ({souvenirs.length})
@@ -105,8 +105,8 @@ export default function SouvenirsPage() {
                   key={category}
                   onClick={() => handleCategoryChange(category)}
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${selectedCategory === category
-                      ? 'bg-green-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    ? 'bg-green-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                 >
                   {category} ({count})
