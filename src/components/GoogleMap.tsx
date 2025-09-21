@@ -347,6 +347,14 @@ export default function GoogleMap({ markers, center, zoom = 13, userLocation, op
       routeRef.current.setMap(null);
     }
 
+    // Clear existing markers to avoid conflicts
+    markersRef.current.forEach(marker => {
+      if (marker && marker.setMap) {
+        marker.setMap(null);
+      }
+    });
+    markersRef.current = [];
+
     // Create route path (only between places, not including user location)
     const routePath = optimizedRoute.map(place => place.coordinates);
 
@@ -423,6 +431,9 @@ export default function GoogleMap({ markers, center, zoom = 13, userLocation, op
           },
           zIndex: 1002
         });
+
+        // Add distance label to markersRef for proper cleanup
+        markersRef.current.push(distanceLabel);
       }
 
       // Add info window for route marker
@@ -523,6 +534,9 @@ export default function GoogleMap({ markers, center, zoom = 13, userLocation, op
       routeMarker.addListener('click', () => {
         routeInfoWindow.open(mapInstanceRef.current, routeMarker);
       });
+
+      // Add route marker to markersRef for proper cleanup
+      markersRef.current.push(routeMarker);
     });
 
     // Fit map to show all markers (user location + places)

@@ -327,9 +327,14 @@ export default function CustomTourPage() {
     setShowRoute(true);
     setShowMap(true); // แสดงแผนที่ด้วย
 
-    // Force re-render to ensure map updates
+    // Force re-render to ensure map updates with proper state management
     setTimeout(() => {
       setOptimizedRoute([...optimized]);
+      // Ensure markers are cleared and route markers are shown
+      setShowRoute(false);
+      setTimeout(() => {
+        setShowRoute(true);
+      }, 50);
     }, 100);
   };
 
