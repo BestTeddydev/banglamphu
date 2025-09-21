@@ -530,7 +530,7 @@ export default function CreatePackagePage() {
                     type="date"
                     value={item.date}
                     onChange={(e) => handleTourDateChange(index, 'date', e.target.value)}
-                    required
+                    // required
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-green-500 focus:border-green-500 text-gray-900 font-medium"
                   />
                 </div>
@@ -540,7 +540,7 @@ export default function CreatePackagePage() {
                     type="time"
                     value={item.startTime}
                     onChange={(e) => handleTourDateChange(index, 'startTime', e.target.value)}
-                    required
+                    // required
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-green-500 focus:border-green-500 text-gray-900 font-medium"
                   />
                 </div>
@@ -550,7 +550,7 @@ export default function CreatePackagePage() {
                     type="time"
                     value={item.endTime}
                     onChange={(e) => handleTourDateChange(index, 'endTime', e.target.value)}
-                    required
+                    // required
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-green-500 focus:border-green-500 text-gray-900 font-medium"
                   />
                 </div>
