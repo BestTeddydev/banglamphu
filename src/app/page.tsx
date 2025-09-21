@@ -1,10 +1,8 @@
 "use client"
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import BannerCarousel from '@/components/BannerCarousel';
-import NewsSection from '@/components/NewsSection';
-import ResearchSection from '@/components/ResearchSection';
-import SouvenirSection from '@/components/SouvenirSection';
 import HighlightSection from '@/components/HighlightSection';
 import SponsorSlider from '@/components/SponsorSlider';
 
@@ -12,6 +10,11 @@ export default function Home() {
   const [showBannerModal, setShowBannerModal] = useState(false);
 
   useEffect(() => {
+    console.log('====================================');
+    console.log('useeffect working');
+    console.log('====================================');
+
+
     // ตรวจสอบว่าเคยปิด modal แล้วหรือยัง
     const bannerClosed = localStorage.getItem('bannerModalClosed');
     if (!bannerClosed) {
@@ -51,17 +54,20 @@ export default function Home() {
 
       {/* Hero Section - แนะนำชุมชนบางลำพู */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        {/* Background Image - Optimized */}
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        {/* Background Image - Optimized with CSS */}
+        {/* <div
+          className={`absolute inset-0 bg-cover bg-center bg-no-repeat optimized-bg ${backgroundLoaded ? 'opacity-100' : 'opacity-0'
+            }`}
           style={{
             backgroundImage: 'url(/anime.jpg)',
-            // willChange: 'transform',
+            backgroundAttachment: typeof window !== 'undefined' && window.innerWidth < 768 ? 'scroll' : 'fixed',
           }}
-        ></div>
+        /> */}
 
         {/* Background Overlay - Simplified */}
         <div className="absolute inset-0 bg-gradient-to-br from-emerald-900/60 to-green-900/50"></div>
+
+      
 
         {/* Background Pattern - Reduced */}
         <div className="absolute top-0 left-0 w-full h-full">
@@ -142,7 +148,7 @@ export default function Home() {
       {/* Banner Modal */}
       {showBannerModal && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+          className="fixed inset-0 z-50 flex items-center justify-center  bg-opacity-80"
           onClick={closeBannerModal}
         >
           <div
@@ -164,20 +170,7 @@ export default function Home() {
               <BannerCarousel />
             </div>
 
-            {/* Modal Footer */}
-            <div className="bg-gradient-to-r from-emerald-50 to-green-50 px-6 py-4 border-t border-emerald-100">
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-gray-600">
-                  💡 คุณสามารถปิดแบนเนอร์นี้ได้โดยคลิกปุ่ม X
-                </p>
-                <button
-                  onClick={closeBannerModal}
-                  className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-green-600 text-white text-sm font-medium rounded-lg hover:from-emerald-600 hover:to-green-700 transition-all duration-200 shadow-md hover:shadow-lg"
-                >
-                  ปิดแบนเนอร์
-                </button>
-              </div>
-            </div>
+
           </div>
         </div>
       )}
@@ -504,151 +497,6 @@ export default function Home() {
         <SponsorSlider />
       </section>
 
-      {/* Additional Sections */}
-      <section className="py-24 bg-white relative">
-        {/* Background Pattern - Simplified */}
-        <div className="absolute inset-0 opacity-3">
-          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-emerald-100 to-green-100"></div>
-        </div>
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-          <div className="text-center mb-20">
-            <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-emerald-500 to-green-600 rounded-full mb-8 shadow-lg">
-              <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-              </svg>
-            </div>
-            <h2 className="text-5xl md:text-6xl font-bold text-gray-900 mb-8 leading-tight">
-              ข้อมูลเพิ่มเติม
-            </h2>
-            <p className="text-xl md:text-2xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
-              ข่าวสาร ผลงานวิจัย สินค้าที่ระลึก และข้อมูลที่น่าสนใจอื่นๆ
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {/* News Section */}
-            <div className="bg-white rounded-3xl p-8 shadow-lg hover:shadow-xl transition-all duration-200 border border-emerald-100">
-              <div className="text-center">
-                <div className="w-20 h-20 bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                  <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-                  </svg>
-                </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">ข่าวสาร</h3>
-                <p className="text-lg text-gray-600 mb-6 leading-relaxed">ติดตามข่าวสารและกิจกรรมล่าสุด</p>
-                <NewsSection />
-              </div>
-            </div>
-
-            {/* Research Section */}
-            <div className="bg-white rounded-3xl p-8 shadow-lg hover:shadow-xl transition-all duration-200 border border-emerald-100">
-              <div className="text-center">
-                <div className="w-20 h-20 bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                  <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">ผลงานวิจัย</h3>
-                <p className="text-lg text-gray-600 mb-6 leading-relaxed">ผลงานวิจัยและงานวิชาการ</p>
-                <ResearchSection />
-              </div>
-            </div>
-
-            {/* Souvenir Section */}
-            <div className="bg-white rounded-3xl p-8 shadow-lg hover:shadow-xl transition-all duration-200 border border-emerald-100">
-              <div className="text-center">
-                <div className="w-20 h-20 bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                  <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                  </svg>
-                </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">สินค้าที่ระลึก</h3>
-                <p className="text-lg text-gray-600 mb-6 leading-relaxed">สินค้าที่ระลึกและของฝาก</p>
-                <SouvenirSection />
-              </div>
-            </div>
-
-            {/* Contact Section */}
-            <div className="bg-white rounded-3xl p-8 shadow-lg hover:shadow-xl transition-all duration-200 border border-emerald-100">
-              <div className="text-center">
-                <div className="w-20 h-20 bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                  <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">ติดต่อเรา</h3>
-                <p className="text-lg text-gray-600 mb-6 leading-relaxed">ติดต่อสอบถามข้อมูลเพิ่มเติม</p>
-                <div className="space-y-3">
-                  <Link
-                    href="/contact"
-                    className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-emerald-500 to-green-600 text-white font-bold text-lg rounded-2xl hover:from-emerald-600 hover:to-green-700 transition-all duration-200 shadow-lg hover:shadow-xl w-full justify-center"
-                  >
-                    ติดต่อเรา
-                    <svg className="w-5 h-5 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </Link>
-                  <button
-                    onClick={openBannerModal}
-                    className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold text-lg rounded-2xl hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl w-full justify-center"
-                  >
-                    <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    ดูแบนเนอร์
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="bg-gradient-to-br from-emerald-800 to-green-900 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div>
-              <div className="flex items-center mb-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-emerald-400 to-green-500 rounded-full flex items-center justify-center mr-4">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-bold">ชุมชนบางลำพู</h3>
-              </div>
-              <p className="text-emerald-100 mb-4">
-                ศูนย์กลางการท่องเที่ยวและวัฒนธรรมแห่งกรุงเทพมหานคร
-              </p>
-              <p className="text-sm text-emerald-200">
-                © 2024 ชุมชนบางลำพู. สงวนลิขสิทธิ์.
-              </p>
-            </div>
-
-            <div>
-              <h4 className="text-lg font-semibold mb-4 text-emerald-100">เมนูหลัก</h4>
-              <ul className="space-y-2">
-                <li><Link href="/tourism/attractions" className="text-emerald-200 hover:text-white transition-colors">แหล่งท่องเที่ยว</Link></li>
-                <li><Link href="/tourism/restaurants" className="text-emerald-200 hover:text-white transition-colors">ร้านอาหาร</Link></li>
-                <li><Link href="/tourism/packages" className="text-emerald-200 hover:text-white transition-colors">โปรแกรมทัวร์</Link></li>
-                <li><Link href="/tourism/custom-tour" className="text-emerald-200 hover:text-white transition-colors">ปรับแต่งโปรแกรมท่องเที่ยว</Link></li>
-                <li><Link href="/tourism/stories" className="text-emerald-200 hover:text-white transition-colors">ประวัติศาสตร์</Link></li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="text-lg font-semibold mb-4 text-emerald-100">ติดต่อเรา</h4>
-              <div className="space-y-2 text-emerald-200">
-                <p>📧 info@banglamphu.com</p>
-                <p>📞 02-123-4567</p>
-                <p>📍 กรุงเทพมหานคร ประเทศไทย</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

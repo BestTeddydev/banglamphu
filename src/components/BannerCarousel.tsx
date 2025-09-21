@@ -79,6 +79,7 @@ export default function BannerCarousel() {
             src="/banner.jpg"
             alt="แบนเนอร์ชุมชนบางลำพู"
             fill
+            sizes="100vw"
             className="object-cover"
             priority
           />
@@ -102,6 +103,7 @@ export default function BannerCarousel() {
                   src={banner.image}
                   alt={banner.title}
                   fill
+                  sizes="100vw"
                   className="object-cover"
                   priority={index === 0}
                 />
@@ -113,7 +115,8 @@ export default function BannerCarousel() {
                   src={banner.image}
                   alt={banner.title}
                   fill
-                  className="object-cover "
+                  sizes="100vw"
+                  className="object-cover"
                   priority={index === 0}
                 />
               </div>

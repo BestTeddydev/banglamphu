@@ -4,6 +4,16 @@ import type { NextRequest } from 'next/server';
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
+  // Skip middleware for static files and assets
+  if (
+    pathname.startsWith('/_next/') ||
+    pathname.startsWith('/api/') ||
+    pathname.match(/\.(jpg|jpeg|png|gif|svg|webp|ico|css|js|woff|woff2|ttf|eot)$/) ||
+    pathname === '/favicon.ico'
+  ) {
+    return NextResponse.next();
+  }
+  
   // Public routes that don't require authentication
   const publicRoutes = [
     '/',
@@ -64,6 +74,6 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      */
-    '/((?!api|_next/static|_next/image|.*\\.(jpg|jpeg|png|gif|svg|ico|ttf)).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico).*)',
   ],
 };

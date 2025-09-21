@@ -73,6 +73,7 @@ export default function SponsorSlider() {
               src={sponsorLogos[currentIndex]}
               alt={`ผู้สนับสนุน ${currentIndex + 1}`}
               fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 100vw"
               className="object-contain transition-opacity duration-500"
               priority
             />
@@ -132,6 +133,7 @@ export default function SponsorSlider() {
                   src={logo}
                   alt={`ผู้สนับสนุน ${index + 1}`}
                   fill
+                  sizes="64px"
                   className="object-contain p-1"
                 />
               </button>

@@ -46,7 +46,9 @@ export default function GoogleMap({ markers, center, zoom = 13, userLocation, op
   const markersRef = useRef<any[]>([]);
   const routeRef = useRef<any>(null);
   const userLocationMarkerRef = useRef<any>(null);
-
+  console.log('====================================');
+  console.log(process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY);
+  console.log('====================================');
   useEffect(() => {
     // Load Google Maps script if not already loaded
     if (!window.google) {
