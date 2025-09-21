@@ -67,7 +67,7 @@ export default function Home() {
         {/* Background Overlay - Simplified */}
         <div className="absolute inset-0 bg-gradient-to-br from-emerald-900/60 to-green-900/50"></div>
 
-      
+
 
         {/* Background Pattern - Reduced */}
         <div className="absolute top-0 left-0 w-full h-full">
@@ -135,6 +135,7 @@ export default function Home() {
               <div className="text-lg text-white font-medium drop-shadow-md">ผู้เยี่ยมชม</div>
             </div>
           </div>
+
         </div>
 
         {/* Scroll Indicator */}
@@ -277,27 +278,7 @@ export default function Home() {
             </div>
 
             <div className="relative">
-              <div className="bg-white rounded-3xl p-10 shadow-lg border border-emerald-100">
-                <div className="text-center">
-                  <div className="w-32 h-32 bg-gradient-to-br from-emerald-500 to-green-600 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-lg">
-                    <svg className="w-16 h-16 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                    </svg>
-                  </div>
-                  <h3 className="text-3xl font-bold text-gray-900 mb-6">ชุมชนบางลำพู</h3>
-                  <p className="text-lg text-gray-600 mb-8 leading-relaxed">ชุมชนที่มีประวัติศาสตร์ยาวนานและวัฒนธรรมที่งดงาม ตั้งอยู่ในเขตพระนคร กรุงเทพมหานคร</p>
-                  <div className="flex justify-center space-x-8">
-                    <div className="text-center">
-                      <div className="text-4xl font-bold text-emerald-600 mb-2">200+</div>
-                      <div className="text-base text-gray-600 font-medium">ปีประวัติศาสตร์</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-4xl font-bold text-green-600 mb-2">50+</div>
-                      <div className="text-base text-gray-600 font-medium">เรื่องเล่า</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <Image src="/history.jpg" alt="Background Image" width={1000} height={1000} className='rounded-3xl' />
             </div>
           </div>
         </div>
@@ -328,28 +309,7 @@ export default function Home() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div className="relative">
-              <div className="bg-white rounded-3xl p-10 shadow-lg border border-emerald-100">
-                <div className="text-center">
-                  <div className="w-32 h-32 bg-gradient-to-br from-emerald-500 to-green-600 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-lg">
-                    <svg className="w-16 h-16 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                  </div>
-                  <h3 className="text-3xl font-bold text-gray-900 mb-6">สถานที่ท่องเที่ยวในชุมชนบางลำพู</h3>
-                  <p className="text-lg text-gray-600 mb-8 leading-relaxed">ค้นพบสถานที่ท่องเที่ยวที่น่าสนใจและมีคุณค่าทางประวัติศาสตร์ในชุมชนบางลำพู</p>
-                  <div className="flex justify-center space-x-8">
-                    <div className="text-center">
-                      <div className="text-4xl font-bold text-emerald-600 mb-2">20+</div>
-                      <div className="text-base text-gray-600 font-medium">สถานที่</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-4xl font-bold text-green-600 mb-2">500+</div>
-                      <div className="text-base text-gray-600 font-medium">ผู้เยี่ยมชม</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <Image src="/banglamphu-travel.jpeg" alt="Background Image" width={1000} height={1000} className='rounded-3xl' />
             </div>
 
             <div className="space-y-8">
@@ -466,27 +426,7 @@ export default function Home() {
             </div>
 
             <div className="relative">
-              <div className="bg-white rounded-3xl p-10 shadow-lg border border-emerald-100">
-                <div className="text-center">
-                  <div className="w-32 h-32 bg-gradient-to-br from-emerald-500 to-green-600 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-lg">
-                    <svg className="w-16 h-16 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                  </div>
-                  <h3 className="text-3xl font-bold text-gray-900 mb-6">แพ็คเกจทัวร์ชุมชนบางลำพู</h3>
-                  <p className="text-lg text-gray-600 mb-8 leading-relaxed">เลือกโปรแกรมทัวร์ที่เหมาะสมกับความต้องการของคุณสำหรับการเที่ยวชมชุมชนบางลำพู</p>
-                  <div className="flex justify-center space-x-8">
-                    <div className="text-center">
-                      <div className="text-4xl font-bold text-emerald-600 mb-2">10+</div>
-                      <div className="text-base text-gray-600 font-medium">แพ็คเกจ</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-4xl font-bold text-green-600 mb-2">200+</div>
-                      <div className="text-base text-gray-600 font-medium">ผู้เข้าร่วม</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <Image src="/tour.jpg" alt="Background Image" width={1000} height={1000} className='rounded-3xl' />
             </div>
           </div>
         </div>

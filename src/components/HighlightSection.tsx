@@ -23,10 +23,24 @@ export default function HighlightSection() {
   const [loading, setLoading] = useState(true);
   const [selectedHighlight, setSelectedHighlight] = useState<Highlight | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
     fetchHighlights();
   }, []);
+
+  // Auto-slide functionality
+  useEffect(() => {
+    if (highlights.length > 1) {
+      const interval = setInterval(() => {
+        setCurrentIndex((prevIndex) =>
+          prevIndex === highlights.length - 1 ? 0 : prevIndex + 1
+        );
+      }, 5000); // เปลี่ยนทุก 5 วินาที
+
+      return () => clearInterval(interval);
+    }
+  }, [highlights.length]);
 
   const fetchHighlights = async () => {
     try {
@@ -70,6 +84,18 @@ export default function HighlightSection() {
     setSelectedHighlight(null);
   };
 
+  const goToSlide = (index: number) => {
+    setCurrentIndex(index);
+  };
+
+  const goToPrevious = () => {
+    setCurrentIndex(currentIndex === 0 ? highlights.length - 1 : currentIndex - 1);
+  };
+
+  const goToNext = () => {
+    setCurrentIndex(currentIndex === highlights.length - 1 ? 0 : currentIndex + 1);
+  };
+
   if (loading) {
     return (
       <section className="py-16 bg-gray-50">
@@ -99,131 +125,176 @@ export default function HighlightSection() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {highlights.map((highlight) => (
-            <div key={highlight._id} className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
-              <div className="relative">
-                <div className="aspect-w-16 aspect-h-9 bg-gray-200">
-                  <img
-                    src={highlight.thumbnail}
-                    alt={highlight.title}
-                    className="w-full h-48 object-cover"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = '/placeholder-image.jpg';
-                    }}
-                  />
-                </div>
+        {/* Dynamic Layout: Single or Grid */}
+        {highlights.length === 1 ? (
+          /* Single Highlight - Full Hero Display */
+          <div className="relative">
+            <div className="relative h-96 md:h-[500px] lg:h-[600px] overflow-hidden rounded-2xl shadow-2xl">
+              <div className="relative w-full h-full">
+                <img
+                  src={highlights[0].thumbnail}
+                  alt={highlights[0].title}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = '/placeholder-image.jpg';
+                  }}
+                />
 
-                {/* Play Button Overlay */}
-                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 hover:bg-opacity-40 transition-all duration-300">
-                  <button
-                    onClick={() => handlePlayVideo(highlight)}
-                    className="bg-white bg-opacity-90 hover:bg-opacity-100 rounded-full p-4 transition-all duration-300 transform hover:scale-110"
-                  >
-                    <svg className="w-8 h-8 text-gray-800 ml-1" fill="currentColor" viewBox="0 0 24 24">
+                {/* Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+
+                {/* Content */}
+                <div
+                  className="absolute inset-0 cursor-pointer flex items-center justify-center"
+                  onClick={() => handlePlayVideo(highlights[0])}
+                >
+                  <div className="bg-white/90 hover:bg-white rounded-full p-4 transition-all duration-300 transform hover:scale-110">
+                    <svg className="w-12 h-12 text-gray-800" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M8 5v14l11-7z" />
                     </svg>
-                  </button>
-                </div>
-
-                {/* Duration Badge */}
-                {highlight.duration && (
-                  <div className="absolute bottom-2 right-2">
-                    <span className="inline-flex px-2 py-1 text-xs font-semibold rounded bg-black bg-opacity-70 text-white">
-                      {highlight.duration}
-                    </span>
                   </div>
-                )}
-
-                {/* Category Badge */}
-                {highlight.category && (
-                  <div className="absolute top-2 left-2">
-                    <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800">
-                      {highlight.category}
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              <div className="p-4">
-                <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
-                  {highlight.title}
-                </h3>
-
-                {highlight.description && (
-                  <p className="text-gray-600 text-sm mb-3 line-clamp-2">
-                    {highlight.description}
-                  </p>
-                )}
-
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center text-sm text-gray-500">
-                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                    </svg>
-                    <span>{formatViewCount(highlight.viewCount || 0)} ครั้ง</span>
-                  </div>
-
-                  <div className="text-sm text-gray-500">
-                    {getVideoPlatform(highlight.videoUrl)}
-                  </div>
-                </div>
-
-                {/* Tags */}
-                {highlight.tags && highlight.tags.length > 0 && (
-                  <div className="mb-4">
-                    <div className="flex flex-wrap gap-1">
-                      {highlight.tags.slice(0, 3).map((tag, index) => (
-                        <span
-                          key={index}
-                          className="inline-flex px-2 py-1 text-xs font-medium bg-purple-100 text-purple-800 rounded-full"
-                        >
-                          #{tag}
-                        </span>
-                      ))}
-                      {highlight.tags.length > 3 && (
-                        <span className="inline-flex px-2 py-1 text-xs font-medium bg-gray-100 text-gray-600 rounded-full">
-                          +{highlight.tags.length - 3}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                <div className="flex space-x-2">
-                  <button
-                    onClick={() => handlePlayVideo(highlight)}
-                    className="flex-1 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium text-center"
-                  >
-                    <svg className="w-4 h-4 mr-2 inline" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M8 5v14l11-7z" />
-                    </svg>
-                    ดูคลิป
-                  </button>
-
-                  <button className="bg-gray-100 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-200 transition-colors">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                    </svg>
-                  </button>
                 </div>
               </div>
             </div>
-          ))}
-        </div>
+          </div>
+        ) : (
+          /* Multiple Highlights - Grid with Carousel */
+          <div className="relative">
+            {/* Main Carousel Display */}
+            <div className="relative h-96 md:h-[500px] lg:h-[600px] overflow-hidden rounded-2xl shadow-2xl">
+              {highlights.map((highlight, index) => (
+                <div
+                  key={highlight._id}
+                  className={`absolute inset-0 transition-opacity duration-1000 ${index === currentIndex ? 'opacity-100' : 'opacity-0'
+                    }`}
+                >
+                  <div className="relative w-full h-full">
+                    <img
+                      src={highlight.thumbnail}
+                      alt={highlight.title}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = '/placeholder-image.jpg';
+                      }}
+                    />
 
-        <div className="text-center mt-12">
-          <Link
-            href="/highlights"
-            className="inline-flex items-center px-6 py-3 text-lg font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors"
-          >
-            ดูไฮไลท์ทั้งหมด
-            <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </Link>
-        </div>
+                    {/* Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+
+                    {/* Content */}
+                    <div
+                      className="absolute inset-0 cursor-pointer flex items-center justify-center"
+                      onClick={() => handlePlayVideo(highlight)}
+                    >
+                      <div className="bg-white/90 hover:bg-white rounded-full p-4 transition-all duration-300 transform hover:scale-110">
+                        <svg className="w-12 h-12 text-gray-800" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M8 5v14l11-7z" />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Grid Preview - Show below main carousel */}
+            <div className="mt-8">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {highlights.map((highlight, index) => (
+                  <div
+                    key={highlight._id}
+                    className={`relative cursor-pointer rounded-lg overflow-hidden transition-all duration-300 ${index === currentIndex
+                      ? 'ring-4 ring-purple-500 scale-105 shadow-lg'
+                      : 'hover:scale-105 shadow-md hover:shadow-lg'
+                      }`}
+                    onClick={() => goToSlide(index)}
+                  >
+                    <div className="aspect-video relative">
+                      <img
+                        src={highlight.thumbnail}
+                        alt={highlight.title}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = '/placeholder-image.jpg';
+                        }}
+                      />
+
+                      {/* Overlay */}
+                      <div className="absolute inset-0 bg-black/40 hover:bg-black/20 transition-colors duration-300"></div>
+
+                      {/* Play Button */}
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="bg-white/90 hover:bg-white rounded-full p-3 transition-all duration-300 transform hover:scale-110">
+                          <svg className="w-6 h-6 text-gray-800" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8 5v14l11-7z" />
+                          </svg>
+                        </div>
+                      </div>
+
+                      {/* Active Indicator */}
+                      {index === currentIndex && (
+                        <div className="absolute top-2 right-2">
+                          <div className="w-3 h-3 bg-purple-500 rounded-full animate-pulse"></div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Navigation Arrows - Only for multiple highlights */}
+            {highlights.length > 1 && (
+              <>
+                <button
+                  onClick={goToPrevious}
+                  className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white p-3 rounded-full transition-all duration-300 backdrop-blur-sm z-10"
+                  aria-label="คลิปก่อนหน้า"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+
+                <button
+                  onClick={goToNext}
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white p-3 rounded-full transition-all duration-300 backdrop-blur-sm z-10"
+                  aria-label="คลิปถัดไป"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </>
+            )}
+
+            {/* Dots Indicator - Only for multiple highlights */}
+            {highlights.length > 1 && (
+              <div className="flex justify-center mt-6 space-x-2">
+                {highlights.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => goToSlide(index)}
+                    className={`w-3 h-3 rounded-full transition-all duration-300 ${index === currentIndex
+                      ? 'bg-purple-600 scale-125'
+                      : 'bg-gray-300 hover:bg-gray-400'
+                      }`}
+                    aria-label={`ไปยังคลิป ${index + 1}`}
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* Counter - Only for multiple highlights */}
+            {highlights.length > 1 && (
+              <div className="text-center mt-4">
+                <p className="text-gray-600 text-sm">
+                  {currentIndex + 1} / {highlights.length}
+                </p>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Video Modal */}
