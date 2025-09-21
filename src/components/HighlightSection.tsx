@@ -184,7 +184,7 @@ export default function HighlightSection() {
                     {/* Content */}
                     <div
                       className="absolute inset-0 cursor-pointer flex items-center justify-center"
-                      onClick={() => handlePlayVideo(highlight)}
+                      onClick={() => handlePlayVideo(highlights[currentIndex])}
                     >
                       <div className="bg-white/90 hover:bg-white rounded-full p-4 transition-all duration-300 transform hover:scale-110">
                         <svg className="w-12 h-12 text-gray-800" fill="currentColor" viewBox="0 0 24 24">
