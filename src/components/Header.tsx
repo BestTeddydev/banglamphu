@@ -10,37 +10,35 @@ export default function Header() {
 
   const navigation = [
     { name: 'หน้าแรก', href: '/' },
-    // { name: 'ข่าวสาร', href: '/news' },
-    // { name: 'กิจกรรม', href: '/events' },
+    { name: 'ประวัติชุมชน', href: '/tourism/stories' },
     { name: 'ท่องเที่ยว', href: '/tourism/attractions' },
     { name: 'ร้านอาหาร', href: '/tourism/restaurants' },
+    { name: 'สินค้าที่ระลึก', href: '/souvenirs' },
     { name: 'แพ็คเกจทัวร์', href: '/tourism/packages' },
     { name: 'ปรับแต่งแพ็คเกจทัวร์', href: '/tourism/custom-tour' },
-    { name: 'ข่าวสาร และ กิจกรรม', href: '/tourism/stories' },
-    // { name: 'ติดต่อ', href: '/contact' },
-    // { name: 'เกี่ยวกับชุมชน', href: '/about' },
+    { name: 'ข่าวสาร และ งานวิจัย', href: '/research' },
   ];
 
   return (
-    <header className="bg-white shadow-lg sticky top-0 z-50">
+    <header className="bg-gradient-to-br from-emerald-800 to-green-900 shadow-lg sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-4">
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-              <Image
-              src="/logo.jpeg"
-              alt="โลโก้ชุมชนบางลำพู"
-              width={80}
-              height={80}
-              className="rounded-lg"
-              priority
-            />
+              <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
+                <Image
+                  src="/logo.jpeg"
+                  alt="โลโก้ชุมชนบางลำพู"
+                  width={80}
+                  height={80}
+                  className="rounded-lg"
+                  priority
+                />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-900">ชุมชนบางลำพู</h1>
-                <p className="text-sm text-gray-600">Banglamphu Community</p>
+                <h1 className="text-xl font-bold text-white">ชุมชนบางลำพู</h1>
+                <p className="text-sm text-emerald-200">Banglamphu Community</p>
               </div>
             </Link>
           </div>
@@ -51,7 +49,7 @@ export default function Header() {
               <Link
                 key={item.name}
                 href={item.href}
-                className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                className="text-emerald-200 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
               >
                 {item.name}
               </Link>
@@ -71,10 +69,10 @@ export default function Header() {
                   </Link>
                 )}
                 <div className="flex items-center space-x-2">
-                  <span className="text-sm text-gray-700">สวัสดี, {user.name}</span>
+                  <span className="text-sm text-white">สวัสดี, {user.name}</span>
                   <button
                     onClick={logout}
-                    className="text-gray-700 hover:text-red-600 text-sm font-medium transition-colors duration-200"
+                    className="text-white hover:text-red-300 text-sm font-medium transition-colors duration-200"
                   >
                     ออกจากระบบ
                   </button>
@@ -84,13 +82,13 @@ export default function Header() {
               <div className="flex items-center space-x-2">
                 <Link
                   href="/login"
-                  className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                  className="text-emerald-200 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
                 >
                   เข้าสู่ระบบ
                 </Link>
                 <Link
                   href="/register"
-                  className="bg-blue-600 text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors duration-200"
+                  className="bg-gradient-to-br from-emerald-400 to-green-500 text-white px-3 py-2 rounded-md text-sm font-medium hover:from-emerald-500 hover:to-green-600 transition-colors duration-200"
                 >
                   สมัครสมาชิก
                 </Link>
@@ -102,7 +100,7 @@ export default function Header() {
           <div className="md:hidden">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="text-gray-700 hover:text-blue-600 focus:outline-none focus:text-blue-600"
+              className="text-emerald-200 hover:text-white focus:outline-none focus:text-green-200"
             >
               <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 {isMenuOpen ? (
@@ -118,20 +116,20 @@ export default function Header() {
         {/* Mobile Navigation */}
         {isMenuOpen && (
           <div className="md:hidden">
-            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-gray-50 rounded-lg mb-4">
+            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white/10 backdrop-blur-sm rounded-lg mb-4">
               {navigation.map((item) => (
                 <Link
                   key={item.name}
                   href={item.href}
-                  className="text-gray-700 hover:text-blue-600 block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200"
+                  className="text-emerald-200 hover:text-white block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {item.name}
                 </Link>
               ))}
-              
+
               {/* Mobile User Menu */}
-              <div className="border-t border-gray-200 pt-3 mt-3">
+              <div className="border-t border-white/20 pt-3 mt-3">
                 {user ? (
                   <div className="space-y-2">
                     {isAdmin && (
@@ -143,7 +141,7 @@ export default function Header() {
                         ระบบจัดการ
                       </Link>
                     )}
-                    <div className="px-3 py-2 text-sm text-gray-600">
+                    <div className="px-3 py-2 text-sm text-white">
                       สวัสดี, {user.name}
                     </div>
                     <button
@@ -160,14 +158,14 @@ export default function Header() {
                   <div className="space-y-2">
                     <Link
                       href="/login"
-                      className="text-gray-700 hover:text-blue-600 block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200"
+                      className="text-white hover:text-red-300 block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       เข้าสู่ระบบ
                     </Link>
                     <Link
                       href="/register"
-                      className="bg-blue-600 text-white block px-3 py-2 rounded-md text-base font-medium hover:bg-blue-700 transition-colors duration-200"
+                      className="bg-gradient-to-br from-emerald-400 to-green-500 text-white block px-3 py-2 rounded-md text-base font-medium hover:from-emerald-500 hover:to-green-600 transition-colors duration-200"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       สมัครสมาชิก

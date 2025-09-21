@@ -519,7 +519,7 @@ export default function CustomTourPage() {
             >
               ร้านอาหาร ({restaurants.length})
             </button>
-            <button
+            {/* <button
               onClick={() => setActiveTab('menus')}
               className={`flex-1 py-2 px-4 rounded-md font-medium transition-colors duration-200 ${activeTab === 'menus'
                 ? 'bg-white text-green-600 shadow-sm'
@@ -527,7 +527,7 @@ export default function CustomTourPage() {
                 }`}
             >
               เมนูอาหาร ({menus.length})
-            </button>
+            </button> */}
           </div>
         </div>
 
