@@ -24,7 +24,7 @@ export default function CreatePackagePage() {
     category: 'อาหาร',
     difficulty: 'easy' as 'easy' | 'moderate' | 'hard',
     isActive: true,
-    tourDates: [{ date: '', startTime: '', endTime: '', availableSlots: 16 }]
+    tourDates: []
   });
   const [uploadingImages, setUploadingImages] = useState(false);
   const [pendingImages, setPendingImages] = useState<File[]>([]);
