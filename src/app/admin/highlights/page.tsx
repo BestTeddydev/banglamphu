@@ -53,7 +53,9 @@ export default function AdminHighlightsPage() {
 
   const fetchHighlights = async () => {
     try {
-      const response = await fetch('/api/admin/highlights');
+      const response = await fetch('/api/admin/highlights', {
+        credentials: 'include'
+      });
       const data = await response.json();
       if (data.success) {
         setHighlights(data.data);
@@ -86,6 +88,7 @@ export default function AdminHighlightsPage() {
 
       const response = await fetch('/api/admin/highlights/upload', {
         method: 'POST',
+        credentials: 'include',
         body: formData
       });
 
@@ -133,6 +136,7 @@ export default function AdminHighlightsPage() {
         headers: {
           'Content-Type': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify({
           ...formData,
           thumbnail: thumbnailUrl
@@ -158,7 +162,8 @@ export default function AdminHighlightsPage() {
 
     try {
       const response = await fetch(`/api/admin/highlights/${id}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        credentials: 'include'
       });
 
       const data = await response.json();
@@ -190,6 +195,7 @@ export default function AdminHighlightsPage() {
     setSelectedFile(null);
     setImagePreview(highlight.thumbnail);
     setTagInput('');
+    setShowCreateForm(true); // เปิดฟอร์มแก้ไข
   };
 
   const addTag = () => {
