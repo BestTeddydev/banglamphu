@@ -7,19 +7,14 @@ import HighlightSection from '@/components/HighlightSection';
 import SponsorSlider from '@/components/SponsorSlider';
 
 export default function Home() {
-  const [showBannerModal, setShowBannerModal] = useState(false);
+  const [showBannerModal, setShowBannerModal] = useState(true);
 
   useEffect(() => {
-    console.log('====================================');
-    console.log('useeffect working');
-    console.log('====================================');
-
-
     // ตรวจสอบว่าเคยปิด modal แล้วหรือยัง
-    const bannerClosed = localStorage.getItem('bannerModalClosed');
-    if (!bannerClosed) {
-      setShowBannerModal(true);
-    }
+    // const bannerClosed = localStorage.getItem('bannerModalClosed');
+    // if (!bannerClosed) {
+    //   setShowBannerModal(true);
+    // }
 
     // เพิ่ม event listener สำหรับปุ่ม ESC
     const handleEscape = (event: KeyboardEvent) => {
@@ -42,7 +37,7 @@ export default function Home() {
 
   const closeBannerModal = () => {
     setShowBannerModal(false);
-    localStorage.setItem('bannerModalClosed', 'true');
+    // localStorage.setItem('bannerModalClosed', 'true');
   };
 
   const openBannerModal = () => {
