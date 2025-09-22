@@ -28,10 +28,11 @@ services:
     environment:
       - NODE_ENV=production
       - MONGODB_URI=mongodb://banglamphuadmin:banglamphuadmin32182@mongodb:27017/banglamphu?authSource=admin
-      - NEXTAUTH_SECRET=best32182@#
+      - NEXTAUTH_SECRET=your-nextauth-secret-key-change-this-in-production
       - NEXTAUTH_URL=http://localhost:3000
-      - JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
-      - VERCEL_BLOB_READ_WRITE_TOKEN=vercel_blob_rw_7O9CU7qtXjmK6YEd_Ki2aCayFKDV8mAMvmEZB36W6e9IDzo
+      - JWT_SECRET=best32182
+      - NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=AIzaSyCRitEjWgFZcISNRHi-fz4o9dO6tejoRC4
+      - BLOB_READ_WRITE_TOKEN=vercel_blob_rw_7O9CU7qtXjmK6YEd_Ki2aCayFKDV8mAMvmEZB36W6e9IDzo
     ports:
       - "3000:3000"
     volumes:
