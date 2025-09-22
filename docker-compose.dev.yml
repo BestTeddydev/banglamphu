@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  # MongoDB Database for Development
+  mongodb:
+    image: mongo:7.0
+    container_name: banglamphu_mongodb_dev
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME:-admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-password123}
+      MONGO_INITDB_DATABASE: ${MONGO_DATABASE:-banglamphu}
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_dev_data:/data/db
+      - ./docker/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    networks:
+      - banglamphu_dev_network
+
+  # Next.js Development Server
+  nextjs:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      target: development
+    container_name: banglamphu_nextjs_dev
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=development
+      - MONGODB_URI=mongodb://${MONGO_ROOT_USERNAME:-admin}:${MONGO_ROOT_PASSWORD:-password123}@mongodb:27017/${MONGO_DATABASE:-banglamphu}?authSource=admin
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-dev-secret-key}
+      - NEXTAUTH_URL=${NEXTAUTH_URL:-http://localhost:3000}
+      - VERCEL_BLOB_STORE_ID=${VERCEL_BLOB_STORE_ID}
+      - VERCEL_BLOB_READ_WRITE_TOKEN=${VERCEL_BLOB_READ_WRITE_TOKEN}
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+      - ./public/uploads:/app/public/uploads
+    depends_on:
+      - mongodb
+    networks:
+      - banglamphu_dev_network
+    command: npm run dev
+
+volumes:
+  mongodb_dev_data:
+    driver: local
+
+networks:
+  banglamphu_dev_network:
+    driver: bridge

@@ -51,8 +51,7 @@ export default function Home() {
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
         {/* Background Image - Optimized with CSS */}
         {/* <div
-          className={`absolute inset-0 bg-cover bg-center bg-no-repeat optimized-bg ${backgroundLoaded ? 'opacity-100' : 'opacity-0'
-            }`}
+          className={`absolute inset-0 bg-cover bg-center bg-no-repeat optimized-bg  'opacity-90'`}
           style={{
             backgroundImage: 'url(/anime.jpg)',
             backgroundAttachment: typeof window !== 'undefined' && window.innerWidth < 768 ? 'scroll' : 'fixed',
