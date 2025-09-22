@@ -50,8 +50,11 @@ export default function GoogleMap({ markers, center, zoom = 13, userLocation, op
   useEffect(() => {
     // Load Google Maps script if not already loaded
     if (!window.google) {
+      console.log('==============process.env======================');
+      console.log(process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY);
+      console.log('====================================');
       const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || 'AIzaSyCRitEjWgFZcISNRHi-fz4o9dO6tejoRC4'}&libraries=places`;
       script.async = true;
       script.defer = true;
       script.onload = initializeMap;

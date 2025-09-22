@@ -18,10 +18,7 @@ export function generateToken(user: AuthUser): string {
 
 export function verifyToken(token: string): AuthUser | null {
   try {
-    console.log('=================verifyToken===================');
-    console.log(token);
-    console.log(JWT_SECRET);
-    console.log('====================================');
+
     return jwt.verify(token, JWT_SECRET) as AuthUser;
   } catch (_error) {
     return null;
@@ -60,9 +57,7 @@ export function getTokenFromRequest(request: NextRequest): string | null {
   if (authHeader && authHeader.startsWith('Bearer ')) {
     return authHeader.substring(7);
   }
-  console.log('=================getTokenFromRequest===================');
-  console.log(request.cookies.get('auth-token')?.value);
-  console.log('====================================');
+
   // Try to get token from cookies
   const token = request.cookies.get('auth-token')?.value;
   return token || null;
